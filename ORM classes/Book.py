@@ -6,7 +6,7 @@ Created on Nov 3, 2018
 
 from sqlalchemy import Column, String, PrimaryKeyConstraint
 from sqlalchemy.dialects.mysql import SMALLINT
-from sqlalchemy.orm import relationship, relation
+from sqlalchemy.orm import relationship, backref
 from EntitiesAsClasses.base import BASE
 
 class Book(BASE):
@@ -17,9 +17,11 @@ class Book(BASE):
     num_in_stock = Column(SMALLINT(unsigned=True), nullable=False)
     pages = Column(SMALLINT(unsigned=True),nullable=False)
     release_year = Column(SMALLINT(unsigned=True),nullable=True)
-    publisher_id = Column(SMALLINT(unsigned=True),nullable=False)
-    author_id = Column(SMALLINT(unsigned=True),nullable=False)
+
+    publisher = relationship("Publisher",viewonly=True)
+    author = relationship("Author", backref=backref('author'))
     genres = relationship("Genre",viewonly=True)
+    
     
     __table_args__ =(
         PrimaryKeyConstraint('book_id',name='PRIMARY'))
@@ -31,5 +33,6 @@ class Book(BASE):
         self.release_year = release_year
         self.publisher_id = publisher_id
         self.author_id = author_id
-        
+    
+
         
