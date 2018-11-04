@@ -7,7 +7,9 @@ Created on Nov 3, 2018
 from sqlalchemy import Column, String, PrimaryKeyConstraint
 from sqlalchemy.dialects.mysql import SMALLINT
 from sqlalchemy.orm import relationship, backref
+
 from EntitiesAsClasses.base import BASE
+
 
 class Book(BASE):
     __tablename__ = 'book'
@@ -35,4 +37,3 @@ class Book(BASE):
         self.author_id = author_id
     
 
-        

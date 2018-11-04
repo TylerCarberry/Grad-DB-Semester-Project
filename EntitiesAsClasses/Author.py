@@ -7,13 +7,14 @@ Created on Nov 3, 2018
 from sqlalchemy import Column, String, PrimaryKeyConstraint
 from sqlalchemy.dialects.mysql import SMALLINT
 from sqlalchemy.orm import relationship, backref
+from sqlalchemy.sql.schema import ForeignKey, ForeignKeyConstraint
 
 from EntitiesAsClasses.base import BASE
-from sqlalchemy.sql.schema import ForeignKey, ForeignKeyConstraint
+
 
 class Author(BASE):
     __tablename__ = 'author'
-    
+
     author_id = Column(SMALLINT(unsigned=True), nullable=False, primary_key=True)
     first_name = Column(String(50),nullable=False)
     last_name = Column(String(50),nullable=False)
