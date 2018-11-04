@@ -7,7 +7,9 @@ Created on Nov 3, 2018
 from sqlalchemy import Column, String, PrimaryKeyConstraint
 from sqlalchemy.dialects.mysql import SMALLINT
 from sqlalchemy.orm import relationship, backref
+
 from EntitiesAsClasses.base import BASE
+
 
 class Genre(BASE):
     __tablename__ = 'genre'
