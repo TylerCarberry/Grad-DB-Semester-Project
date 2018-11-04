@@ -5,29 +5,29 @@ Created on Nov 3, 2018
 '''
 
 from sqlalchemy import Column, String, PrimaryKeyConstraint
-from sqlalchemy.dialects.mysql import SMALLINT
+from sqlalchemy.dialects.mysql import INTEGER
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.sql.schema import ForeignKey, ForeignKeyConstraint
 
-from EntitiesAsClasses.base import BASE
+from EntitiesAsClasses.Base import BASE
 
 
 class Customer(BASE):
     __tablename__ = 'customer'
 
-    customer_id = Column(SMALLINT(unsigned=True), nullable=False, primary_key=True)
+    customer_id = Column(INTEGER(unsigned=True), nullable=False, primary_key=True)
     first_name = Column(String(50), nullable=False)
     last_name = Column(String(50), nullable=False)
     address = Column(String(100), nullable=True)
 
     # wishlist relationship
-    books = relationship("Book", secondary="Customer_Book", viewOnly=True)
+    books = relationship("Book", secondary="Customer_Book", viewonly=True)
 
     # cart relationship
-    booksInCart = relationship("Book", secondary="Customer_Book", viewOnly=True)
+    booksInCart = relationship("Book", secondary="Customer_Book", viewonly=True)
 
     __table_args__ = (
-        PrimaryKeyConstraint('customer_id', name='PRIMARY'))
+        PrimaryKeyConstraint('customer_id', name='PRIMARY'), )
 
     def __init__(self, first_name, last_name, address):
         self.first_name = first_name
@@ -37,11 +37,11 @@ class Customer(BASE):
 
 class Customer_Book(BASE):
     __tablename__ = 'customer_book'
-    customer_id = Column(SMALLINT, ForeignKey('customer.customer_id'), nullable=False)
-    book_id = Column(SMALLINT, ForeignKey('book.book_id'), nullable=False)
+    customer_id = Column(INTEGER, ForeignKey('customer.customer_id'), nullable=False)
+    book_id = Column(INTEGER, ForeignKey('book.book_id'), nullable=False)
 
-    customer = relationship("Customer", backref=backref("customer_book"))
-    book = relationship("Book", backref=backref('customer_book'))
+    customer = relationship("customer", backref=backref("customer_book"))
+    book = relationship("book", backref=backref('customer_book'))
 
     __table_args__ = (
         PrimaryKeyConstraint('customer_id', 'book_id', name='PRIMARY'),
