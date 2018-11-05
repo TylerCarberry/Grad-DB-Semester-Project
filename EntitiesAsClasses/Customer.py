@@ -21,10 +21,10 @@ class Customer(BASE):
     address = Column(String(100), nullable=True)
 
     # wishlist relationship
-    books = relationship("Book", secondary="Customer_Book", viewonly=True)
+    books = relationship("Book", secondary="customer_book", viewonly=True)
 
     # cart relationship
-    booksInCart = relationship("Book", secondary="Customer_Book", viewonly=True)
+    booksInCart = relationship("Book", secondary="customer_book", viewonly=True)
 
     __table_args__ = (
         PrimaryKeyConstraint('customer_id', name='PRIMARY'), )
@@ -40,8 +40,8 @@ class Customer_Book(BASE):
     customer_id = Column(INTEGER, ForeignKey('customer.customer_id'), nullable=False)
     book_id = Column(INTEGER, ForeignKey('book.book_id'), nullable=False)
 
-    customer = relationship("customer", backref=backref("customer_book"))
-    book = relationship("book", backref=backref('customer_book'))
+    customer = relationship("Customer", backref=backref("customer_book"))
+    book = relationship("Book", backref=backref('customer_book'))
 
     __table_args__ = (
         PrimaryKeyConstraint('customer_id', 'book_id', name='PRIMARY'),

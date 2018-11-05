@@ -8,7 +8,7 @@ from sqlalchemy import Column, PrimaryKeyConstraint
 from sqlalchemy.dialects.mysql import INTEGER
 from sqlalchemy.types import Enum
 
-from EntitiesAsClasses.Base import BASE
+from EntitiesAsClasses.base import BASE
 
 
 class Rating(BASE):

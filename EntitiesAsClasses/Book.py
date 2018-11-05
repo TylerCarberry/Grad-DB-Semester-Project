@@ -9,6 +9,7 @@ from sqlalchemy.dialects.mysql import INTEGER
 from sqlalchemy.orm import relationship, backref
 
 from EntitiesAsClasses.Base import BASE
+from sqlalchemy.sql.schema import ForeignKeyConstraint
 
 
 class Book(BASE):
@@ -19,13 +20,14 @@ class Book(BASE):
     num_in_stock = Column(INTEGER(unsigned=True), nullable=False)
     pages = Column(INTEGER(unsigned=True), nullable=False)
     release_year = Column(INTEGER(unsigned=True), nullable=True)
+    publisher_id = Column(INTEGER(unsigned=True), nullable=False)
 
-    publisher = relationship("Publisher", viewonly=True)
-    author = relationship("Author", backref=backref('author'))
-    genres = relationship("Genre", viewonly=True)
+    publisher = relationship("Publisher", backref=backref('publisher'))
+    authors = relationship("Author", secondary='author_book',viewonly=True)
 
     __table_args__ = (
-        PrimaryKeyConstraint('book_id', name='PRIMARY'),)
+        PrimaryKeyConstraint('book_id', name='PRIMARY'),
+        ForeignKeyConstraint(['publisher_id'],['publisher.publisher_id']))
 
     def __init__(self, title, num_in_stock, pages, release_year, publisher_id, author_id):
         self.title = title

@@ -21,7 +21,7 @@ class Author(BASE):
     first_name = Column(String(50), nullable=False)
     last_name = Column(String(50), nullable=False)
 
-    books = relationship("Book", secondary="Author_Book", viewonly=True)
+    books = relationship("Book", secondary="author_book", viewonly=True)
 
     def __init__(self, first_name, last_name):
         self.first_name = first_name
@@ -37,9 +37,9 @@ class Author_Book(BASE):
     book = relationship("Book", backref=backref("author_book"))
 
     __table_args__ = (
-        PrimaryKeyConstraint('author_id', 'book_id', name='PRIMARY'),
-        ForeignKeyConstraint(['author_id'], ['author.author_id']),
-        ForeignKeyConstraint(['book_id'], ['book.book_id']))
+    PrimaryKeyConstraint('author_id', 'book_id', name='PRIMARY'),
+    ForeignKeyConstraint(['author_id'], ['author.author_id']),
+    ForeignKeyConstraint(['book_id'], ['book.book_id']))
 
     def __init__(self, author=None, book=None):
         self.author = author

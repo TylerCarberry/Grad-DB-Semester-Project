@@ -15,15 +15,19 @@ from sqlalchemy.orm import sessionmaker
 # use a constant here, so that the same bases is used for all tables
 # Now save this schema information to the database
 from EntitiesAsClasses import Author, Customer, Book
-from EntitiesAsClasses.Base import BASE
+from sqlalchemy.ext.declarative import declarative_base
+
+BASE = declarative_base()
 
 # Your Rowan username
 username = 'smithj1'
 
 # The password to the database. Not your Rowan password!
 password = 'password123'
-
-connection = create_engine('mysql+pymysql://' + username + ':' + password + '@elvis.rowan.edu/' + username)
+#ON ELVIS
+#connection = create_engine('mysql+pymysql://' + username + ':' + password + '@elvis.rowan.edu/' + username)
+#ON LOCAL
+connection = create_engine('mysql+pymysql://'+'username:password'+':@localhost:3306/'+'schemaName')
 BASE.metadata.create_all(connection)
 
 # create a session that we can use to interact with the database
@@ -33,9 +37,9 @@ session = Session()
 
 # Let's try to retrieve all records from some tables
 # For film table, we will bring back all records into a single variable films
-print("Films:\n")
-films = session.query(Book.Book).all()
-print(films)
+print("Books:\n")
+Books = session.query(Book.Book).all()
+print(Books)
 
 """
 # For actor table, we will use an iterable and chain to order_by method
