@@ -14,7 +14,7 @@ from sqlalchemy.orm import sessionmaker
 
 # use a constant here, so that the same bases is used for all tables
 # Now save this schema information to the database
-from EntitiesAsClasses import Author, Customer, Book
+from EntitiesAsClasses import Author, Customer, Book, Publisher, Rating, Restock, Transaction
 from sqlalchemy.ext.declarative import declarative_base
 
 BASE = declarative_base()

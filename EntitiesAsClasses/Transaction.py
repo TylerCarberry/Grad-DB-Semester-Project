@@ -21,7 +21,7 @@ class Transaction(BASE):
 
     customer_id = Column(INTEGER(unsigned=True), ForeignKey('customer.customer_id'), nullable=False)
 
-    customer = relationship("customer", backref=backref('transaction'))
+    customer = relationship("Customer", backref=backref('transaction'))
 
     __table_args__ = (
         PrimaryKeyConstraint('transaction_id', name='PRIMARY'), )

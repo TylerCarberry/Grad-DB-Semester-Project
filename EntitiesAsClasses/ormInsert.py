@@ -38,7 +38,7 @@ pages = 223
 release_year = 1997
 
 
-book = Book(book_title,num_in_stock,pages,release_year,publisher.publisher_id,author.author_id)
+book = Book(book_title,num_in_stock,pages,release_year,author.author_id)
 
 session.add(book)
 session.commit()
