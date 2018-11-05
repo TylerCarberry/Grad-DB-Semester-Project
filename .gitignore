@@ -91,3 +91,5 @@ gaenv_lib/
 appengine_config.py
 
 
+
+\.DS_Store
