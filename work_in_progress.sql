@@ -172,5 +172,57 @@ CREATE OR REPLACE VIEW all_customers (first_name, last_name, email, address, sto
   SELECT first_name, last_name, email, address, 'adventureworks' FROM adventure_customers
 ;
 
+SELECT * FROM all_customers;
 
-SELECT * FROM all_customers
+
+
+
+
+
+# Products
+# The view for northwind products
+
+CREATE OR REPLACE VIEW northwind_products(name, description, category, cost) AS
+SELECT p.product_name, ifnull(p.description, ''), p.category, p.standard_cost
+FROM northwind.products p;
+
+
+# Adventure works products
+CREATE OR REPLACE VIEW adventure_products(name, description, category, cost) AS
+SELECT p.Name, pd.Description, pc.Name, p.ListPrice
+FROM adventureworks.product p
+JOIN adventureworks.productsubcategory sub ON p.ProductSubcategoryID = sub.ProductSubcategoryID
+JOIN adventureworks.productcategory pc on sub.ProductCategoryID = pc.ProductCategoryID
+JOIN adventureworks.productmodel pm on pm.ProductModelID = p.ProductModelID
+JOIN adventureworks.productmodelproductdescriptionculture longname on longname.ProductModelID = pm.ProductModelID
+JOIN adventureworks.productdescription pd on pd.ProductDescriptionID = longname.ProductDescriptionID
+  WHERE longname.CultureID = 'en'
+;
+
+
+SELECT * FROM adventure_products;
+
+
+CREATE OR REPLACE VIEW sakila_products(name, description, category, cost) AS
+SELECT f.title, f.description, group_concat(c.name separator '-'), f.replacement_cost
+FROM sakila.film f
+JOIN sakila.film_category fc on fc.film_id = f.film_id
+JOIN sakila.category c on fc.category_id = c.category_id
+GROUP BY f.film_id
+;
+
+SELECT * FROM sakila_products;
+
+
+# All products from sakila, northwind, adventure works
+# TODO: Add ours also
+CREATE OR REPLACE VIEW all_products (name, description, category, cost, store) AS
+  SELECT name, description, category, cost, 'northwind' FROM northwind_products
+  UNION
+  SELECT name, description, category, cost, 'sakila' FROM sakila_products
+  UNION
+  SELECT name, description, category, cost, 'adventureworks' FROM adventure_products
+;
+
+SELECT * FROM all_products;
+
