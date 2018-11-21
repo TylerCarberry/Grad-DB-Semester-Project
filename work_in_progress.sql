@@ -249,3 +249,33 @@ CREATE OR REPLACE VIEW all_products (name, description, category, cost, store) A
 
 SELECT * FROM all_products;
 
+
+
+
+
+
+# 7. Ability to generate a restocking order (should be saved in a ”restocking” table) if the supply of any of your products falls below the minimum stock level
+
+DROP TRIGGER IF EXISTS restock_trigger;
+CREATE TRIGGER restock_trigger BEFORE UPDATE ON carberryt9.book
+  FOR EACH ROW
+  BEGIN
+    IF new.num_in_stock < 5 THEN
+      SET new.num_in_stock = old.num_in_stock + 10;
+      INSERT INTO restock(book_id, amount) VALUES(new.book_id, 10);
+    END IF ;
+  END;
+
+
+
+# 10. List of all your products whose inventory has fallen below the minimum stock level
+SELECT * FROM carberryt9.book WHERE num_in_stock < 5;
+
+# 11. List of customers who have not been “too active”(you define this) and for whom special offers should be made.
+# A not active customer is a customer who has previously placed an order before, but has not placed an order in the past month
+SELECT * from carberryt9.customer c1
+WHERE
+    (SELECT max(t2.transaction_time) most_recent_order
+     FROM transaction t2 JOIN customer c2 ON t2.customer_id = c2.customer_id
+     WHERE c2.customer_id = c1.customer_id
+     GROUP BY c2.customer_id) < now() - 30*24*60*60
