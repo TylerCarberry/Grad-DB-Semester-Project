@@ -126,28 +126,51 @@ create table wish_list
   foreign key (customer_id) references customer (customer_id)
 );
 
+
+# List of adventure works customers with first name, last name, email, and address
 CREATE OR REPLACE VIEW adventure_customers(first_name, last_name, email, address) AS
 SELECT cont.FirstName, cont.LastName, cont.EmailAddress, address.address FROM adventureworks.customer c
   JOIN adventureworks.individual i on c.CustomerID = i.CustomerID
   JOIN adventureworks.contact cont on i.ContactID = cont.ContactID
   JOIN adventureworks.customeraddress ca on ca.CustomerID = c.CustomerID
-  JOIN adventure_customers_address address on address.address_id = ca.AddressID
-LIMIT 100;
+  JOIN adventure_customers_address address on address.address_id = ca.AddressID;
 
-SELECT * FROM adventure_customers;
 
+# List of adventure works full addresses concatenated as a string
 CREATE OR REPLACE VIEW adventure_customers_address(address_id, address) AS
-SELECT a.AddressID, concat(a.AddressLine1, ifnull(concat(' ', a.AddressLine2), ''), ' ', a.City, ' ', trim(s.StateProvinceCode), ' ', a.PostalCode) FROM adventureworks.customeraddress ca
+SELECT a.AddressID, concat(a.AddressLine1, ifnull(concat(' ', a.AddressLine2), ''), ' ', a.City, ' ', trim(s.StateProvinceCode), ' ', a.PostalCode, ' ', s.CountryRegionCode) FROM adventureworks.customeraddress ca
   JOIN adventureworks.address a ON ca.AddressID = a.AddressID
   JOIN adventureworks.stateprovince s ON s.StateProvinceID = a.StateProvinceID;
 
 
-CREATE OR REPLACE VIEW all_customers (first_name, last_name, email, store) AS
-  SELECT first_name, last_name, ifnull(email_address, 'unknown email'), 'northwind' FROM northwind.customers
+
+
+# List of sakila customers with first name, last name, email, and address
+CREATE OR REPLACE VIEW sakila_customers(first_name, last_name, email, address) AS
+SELECT c.first_name, c.last_name, c.email, concat(a.address, ifnull(a.address2, ''), ' ', city.city, ' ', a.district, ' ', a.postal_code, ' ', country.country)
+FROM sakila.customer c
+JOIN sakila.address a on a.address_id = c.address_id
+JOIN sakila.city city on a.city_id = city.city_id
+JOIN sakila.country country on city.country_id = country.country_id;
+
+
+# List of sakila customers with first name, last name, email, and address
+CREATE OR REPLACE VIEW northwind_customers(first_name, last_name, email, address) AS
+SELECT c.first_name, c.last_name, ifnull(c.email_address, 'unknown email'), concat(c.address, ' ', c.city, ' ', c.state_province, ' ', c.zip_postal_code, ' ', c.country_region) from northwind.customers c
+;
+
+SELECT * FROM sakila_customers;
+
+
+# All customers from sakila, northwind, adventure works
+# TODO: Add ours also
+CREATE OR REPLACE VIEW all_customers (first_name, last_name, email, address, store) AS
+  SELECT first_name, last_name, email, address, 'northwind' FROM northwind_customers
   UNION
-  SELECT first_name, last_name, email, 'sakila' FROM sakila.customer
+  SELECT first_name, last_name, email, address, 'sakila' FROM sakila_customers
   UNION
   SELECT first_name, last_name, email, address, 'adventureworks' FROM adventure_customers
 ;
+
 
 SELECT * FROM all_customers
