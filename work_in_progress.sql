@@ -161,6 +161,14 @@ SELECT c.first_name, c.last_name, ifnull(c.email_address, 'unknown email'), conc
 
 SELECT * FROM sakila_customers;
 
+# List of Rowan Books customers with first name, last name, email, and address
+CREATE OR REPLACE VIEW rowan_customers(first_name, last_name, email, address) AS
+SELECT c.first_name, c.last_name, ifnull(c.email, 'unknown email'), c.address
+       FROM carberryt9.customer c
+;
+
+SELECT * FROM rowan_customers;
+
 
 # All customers from sakila, northwind, adventure works
 # TODO: Add ours also
@@ -170,9 +178,11 @@ CREATE OR REPLACE VIEW all_customers (first_name, last_name, email, address, sto
   SELECT first_name, last_name, email, address, 'sakila' FROM sakila_customers
   UNION
   SELECT first_name, last_name, email, address, 'adventureworks' FROM adventure_customers
+  UNION
+  SELECT first_name, last_name, email, address, 'rowan_books' FROM rowan_customers
 ;
 
-SELECT * FROM all_customers;
+SELECT * FROM all_customers LIMIT 100;
 
 
 
@@ -214,6 +224,17 @@ GROUP BY f.film_id
 SELECT * FROM sakila_products;
 
 
+CREATE OR REPLACE VIEW rowan_products(name, description, category, cost) AS
+SELECT b.title, b.description, group_concat(g.name separator '-'), b.price
+FROM carberryt9.book b
+JOIN carberryt9.book_genre bg on b.book_id = bg.book_id
+JOIN carberryt9.genre g on g.genre_id = bg.genre_id
+GROUP BY b.book_id
+;
+
+SELECT * FROM rowan_products;
+
+
 # All products from sakila, northwind, adventure works
 # TODO: Add ours also
 CREATE OR REPLACE VIEW all_products (name, description, category, cost, store) AS
@@ -222,6 +243,8 @@ CREATE OR REPLACE VIEW all_products (name, description, category, cost, store) A
   SELECT name, description, category, cost, 'sakila' FROM sakila_products
   UNION
   SELECT name, description, category, cost, 'adventureworks' FROM adventure_products
+  UNION
+  SELECT name, description, category, cost, 'rowan' FROM rowan_products
 ;
 
 SELECT * FROM all_products;
