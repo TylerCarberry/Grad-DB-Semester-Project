@@ -5,7 +5,7 @@ Created on Nov 3, 2018
 '''
 
 from sqlalchemy import Column, String, PrimaryKeyConstraint, ForeignKey
-from sqlalchemy.dialects.mysql import INTEGER
+from sqlalchemy.dialects.mysql import INTEGER, DOUBLE
 from sqlalchemy.orm import relationship, backref
 
 from EntitiesAsClasses.Base import BASE
@@ -16,11 +16,13 @@ class Book(BASE):
     __tablename__ = 'book'
 
     book_id = Column(INTEGER(unsigned=True), nullable=False, primary_key=True)
-    title = Column(String(50), nullable=False)
+    title = Column(String(100), nullable=False)
+    description = Column(String(1000), nullable=False)
     num_in_stock = Column(INTEGER(unsigned=True), nullable=False)
     pages = Column(INTEGER(unsigned=True), nullable=False)
     release_year = Column(INTEGER(unsigned=True), nullable=True)
     publisher_id = Column(INTEGER(unsigned=True), ForeignKey('publisher.publisher_id'),nullable=False)
+    price = Column(DOUBLE, nullable=False)
 
     publisher = relationship("Publisher", backref=backref('book'))
     authors = relationship("Author", secondary='author_book',viewonly=True)
@@ -29,9 +31,11 @@ class Book(BASE):
         PrimaryKeyConstraint('book_id', name='PRIMARY'),
         ForeignKeyConstraint(['publisher_id'],['publisher.publisher_id']))
 
-    def __init__(self, title, num_in_stock, pages, release_year, author_id):
+    def __init__(self, title, description, num_in_stock, pages, release_year, author_id, price):
         self.title = title
+        self.description = description
         self.num_in_stock = num_in_stock
         self.pages = pages
         self.release_year = release_year
         self.author_id = author_id
+        self.price = price
