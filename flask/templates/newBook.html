@@ -1,0 +1,31 @@
+{% extends "base.html"}
+
+{% block content %}
+	<form action = '{{ url_for(new_book)}}' method ='post'>
+		<label for='title'>Book Title: </label>
+		<input type='text' size = '50' name='title' value='{{book.title}}'/>
+		Authors:
+		<ul>
+			{% for author in book.authors %}
+				<label for='title'>Author: </label>
+				<input type='text' size = '50' name='author' value='{{author.name}}'/>
+			{% endfor %}
+		</ul>
+
+		<label for='title'>Publisher: </label>
+		<input type='text' size = '50' name='publisher' value='{{book.publisher}}'/>
+	
+		<label for='title'>Description: </label>
+		<input type='textarea' size = '1000' name='description value='{{book.discription}}'/>
+
+		<label for='title'>Pages: </label>
+		<input type='text' size = '50' name='pages' value='{{book.pages}}'/>
+	
+		<label for='title'>In stock: </label>
+		<input type='text' size = '50' name='pages' value='{{book.num_in_stock}}'/>
+		
+		<input type='submit' />
+	</form>
+
+{% endblock %}
+	

@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% block content %}
+	{% block h1 %}Are you sure you want to delete{{book.title}}?{% endblock %}
+	<form action = '{{url_for('delete_book', book_id = book.book_id) }}' method='post'>
+		<input type='submit' />
+	</form>
+	<a href="{{url_for('get_books') }}">Cancel</a>
+{% endblock %}

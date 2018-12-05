@@ -1,0 +1,30 @@
+{% extends "base.html"}
+{% block h1 %}Books{% endblock %}
+
+{% block content %}
+	{% for book in books %}
+		<a href='/book/{{book.book_id}}'>{{book.title}}</a>
+		Authors:
+		<ul>
+			{% for author in book.authors %}
+				<li>{{author.name}}</li>
+			{% endfor %}
+		</ul>
+	
+		Publisher: {{book.publisher}}
+	
+		Description: {{book.discription}}
+
+		<ul>
+			{% for genre in book_genre %}
+				<li>{{genre.name}} </li>
+			{% endfor %}
+		</ul>
+		Price: {{book.price}}
+		In stock: {{book.num_in_stock}}
+	
+	{% endfor %}
+	<a href = 'book/new/'>Add new book</a>
+	
+{% endblock %}
+	

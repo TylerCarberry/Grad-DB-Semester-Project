@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, render_template, url_for
 
 app = Flask(__name__)
 
@@ -9,7 +9,7 @@ from sqlalchemy.orm import sessionmaker
 
 # use a constant here, so that the same bases is used for all tables
 # Now save this schema information to the database
-from EntitiesAsClasses import Author, Customer, Book, Publisher, Rating, Restock, Transaction, WishList, Genre, Cart
+from EntitiesAsClasses import Author, Customer, Book, Publisher, Rating, Restock, Transaction
 from sqlalchemy.ext.declarative import declarative_base
 
 BASE = declarative_base()
@@ -39,29 +39,66 @@ def hello_world():
            "<p><a href='/publisher'> View All Publishers</a></p>"
 
 
-@app.route('/book')
+@app.route('/books')
 def all_books():
-    print("Books:\n")
     books = session.query(Book.Book).all()
-    print(books)
-    html = '<h1> Books </h1>'
-    for book in books:
-        html += "<p><a href='/book/" + str(book.book_id) + "'> " + book.title + "</a></p>"
-    return html
+    return render_template('booklist.html',
+						book=books,
+						title='All Books')
 
+@app.route('/book/<int:bookId>/')
+def one_book(bookId):
+    book = session.query(Book.Book).filter_by(book_id=bookId).one()
+    return render_template('book.html',
+						book=book,
+						title=book.title)
+	
+@app.route('/book/modify/<int:bookId>',methods=['GET','POST'])
+def modify_book(bookId):
+	book = session.query(Book.Book).filter_by(book_id=bookId).one()
+	if request.method == 'POST':
+		book.title = request.form['title']
+		book.description = request.form['description']
+		book.pages = request.form['pages']
+		book.release_year = request.form['release_year']
+		book.price = request.form['price']
+		book.publisher_id = request.form['publisher_id']
+		session.add(book)
+		session.commit()
+		flash(title+ "'s information updated")
+		return redirect(url_for('all_books'))
+	else:
+		return render_template('editBook.html', book = book)
 
-@app.route('/author')
-def all_authors():
-    print("Authors:\n")
-    authors = session.query(Author.Author).all()
-    print(authors)
-    html = '<h1> Authors </h1>'
-    for author in authors:
-        html += "<p><a href='/author/" + str(
-            author.author_id) + "'> " + author.first_name + " " + author.last_name + "</a></p>"
-    return html
-
-
+@app.route('/book/delete/<int:bookId>',methods=['GET','POST'])
+def delete_book(book_id):
+	book = session.query(Book.Book).filter_by(book_id = book_id).one()
+	if request.method == 'POST':
+		session.delete(book)
+		session.commit()
+		flash(book.title+ " deleted")
+		return redirect(url_for('all_books'))
+	else:
+		return render_template('deleteBook.html', book = book)
+		
+@app.route('book/new/', methods=['GET','POST'])
+def insert_book():
+	if request.method == 'POST':
+		title = request.form['title']
+		description = request.form['description']
+		num_in_stock = request.form['num_in_stock']
+		pages = request.form['pages']
+		release_year = request.form['release_year']
+		#need to change author orm
+		#author_id = session.query(Author.Author).filter_by(first_name=request.form['first_name'], last_name=request.form['last_name']).one()
+		newBook = Book(title = title,description = description,num_in_stock = num_in_stock,pages = pages, release_year = release_year)
+		session.add(newBook)
+		session.commit()
+		flash("New book " +title+ " created")
+		return redirect(url_for('all_books'))
+	else:
+		return render_template('newBook.html')
+		
 @app.route('/publisher')
 def all_publishers():
     print("Publishers:\n")
@@ -73,38 +110,7 @@ def all_publishers():
             publisher.publisher_id) + "'> " + publisher.name + "</a></p>"
     return html
 
-
-@app.route('/book/<int:bookId>/')
-def one_book(bookId):
-    print("Book:\n")
-    book = session.query(Book.Book).filter_by(book_id=bookId).one()
-    print(book)
-    html = '<h1>' + book.title + '</h1>'
-    html += "<h2> Authors: </h2>"
-
-    for author in book.authors:
-        html += "<p><a href='/author/" + str(
-            author.author_id) + "'> " + author.first_name + " " + author.last_name + "</a></p>"
-
-    html += '<h2> Publisher </h2>'
-    html += "<p><a href='/publisher/" + str(
-        book.publisher_id) + "'> " + book.publisher.name + "</a></p>"
-    return html
-
-
-@app.route('/author/<int:authorId>/')
-def one_author(authorId):
-    print("Author:\n")
-    author = session.query(Author.Author).filter_by(author_id=authorId).one()
-    print(author)
-    html = '<h1>' + author.first_name + " " + author.last_name + '</h1>'
-    html += "<h2> Books: </h2>"
-
-    for book in author.books:
-        html += "<p><a href='/book/" + str(book.book_id) + "'> " + book.title + "</a></p>"
-    return html
-
-
+						
 @app.route('/publisher/<int:publisherId>/')
 def one_publisher(publisherId):
     print("Publisher:\n")

@@ -1,0 +1,14 @@
+<html>
+<head>
+  {% if title %}
+  <title>{{ title }} - Rowan Book Store</title>
+  {% else %}
+  <title>Rowan Book Store</title>
+  {% endif %}
+</head>
+<body>
+    <main>
+      {% block content %}{% endblock %}   
+    </main>
+</body>
+</html>
