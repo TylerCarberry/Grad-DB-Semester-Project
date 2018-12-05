@@ -1,4 +1,4 @@
-{% extends "base.html"}
+{% extends "base.html" %}
 
 {% block content %}
 	<form action = '{{ url_for(new_book)}}' method ='post'>
@@ -16,7 +16,7 @@
 		<input type='text' size = '50' name='publisher' value='{{book.publisher}}'/>
 	
 		<label for='title'>Description: </label>
-		<input type='textarea' size = '1000' name='description value='{{book.discription}}'/>
+		<input type='textarea' size = '1000' name='description value='{{book.description}}'/>
 
 		<label for='title'>Pages: </label>
 		<input type='text' size = '50' name='pages' value='{{book.pages}}'/>

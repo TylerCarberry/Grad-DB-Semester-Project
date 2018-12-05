@@ -1,29 +1,34 @@
-{% extends "base.html"}
+{% extends "base.html" %}
 
 {% block content %}
-	<form action = '{{ url_for(modify_book), book_id = book.book_id }}' method ='post'>
+	<form action = "{{url_for('modify_book', bookId=book.book_id) }}" method ='POST'>
 		<label for='title'>Book Title: </label>
 		<input type='text' size = '50' name='title' value='{{book.title}}'/>
+		<br/>
 		Authors:
 		<ul>
 			{% for author in book.authors %}
-				<label for='title'>Author: </label>
-				<input type='text' size = '50' name='author' value='{{author.name}}'/>
+				<label for='author'>Author: </label>
+				<input type='text' size='50' name='author' value='{{author.name}}'/>
 			{% endfor %}
 		</ul>
 
-		<label for='title'>Publisher: </label>
-		<input type='text' size = '50' name='publisher' value='{{book.publisher}}'/>
-	
-		<label for='title'>Description: </label>
-		<input type='textarea' size = '1000' name='description value='{{book.discription}}'/>
+		<label for='publisher'>Publisher: </label>
+		<input type='text' size = '50' name='publisher' value='{{book.publisher.name}}'/>
 
-		<label for='title'>Pages: </label>
-		<input type='text' size = '50' name='pages' value='{{book.pages}}'/>
-	
-		<label for='title'>In stock: </label>
-		<input type='text' size = '50' name='pages' value='{{book.num_in_stock}}'/>
-		
+		<br/>
+		<label for='description'>Description: </label>
+		<input type='textarea' size='200' name='description' value='{{book.description}}'/>
+
+		<br/>
+		<label for='pages'>Pages: </label>
+		<input type='text' size='20' name='pages' value='{{book.pages}}'/>
+
+		<br/>
+		<label for='stock'>In stock: </label>
+		<input type='text' size='20' name='stock' value='{{book.num_in_stock}}'/>
+
+		<br/>
 		<input type='submit' />
 	</form>
 
