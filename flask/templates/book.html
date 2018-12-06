@@ -1,18 +1,18 @@
-{% extends "base.html"}
+{% extends "base.html" %}
 
 {% block content %}
-	{% block h1 %}{{book.title}}{% endblock %}
+<h2>{{book.title}}</h2>
 	Authors:
 	<ul>
 		{% for author in book.authors %}
-			<li>{{author.name}}</li>
+			<li>{{author.first_name}} {{author.last_name}}</li>
 		{% endfor %}
 	</ul>
 	
-	Publisher: {{book.publisher}}
-	
-	Description: {{book.discription}}
-
+	Publisher: {{book.publisher.name}}
+	<br/>
+	Description: {{book.description}}
+<br/>
 	Pages: {{book.pages}}
 	<ul>
 		{% for genre in book_genre %}
@@ -21,9 +21,10 @@
 	</ul>
 	
 	In stock: {{book.num_in_stock}}
+<p></p>
 
-	<a href = 'book/modify/{{book.book_id}}/'>Modify</a>&nbsp;&nbsp;&nbsp;
-	<a href = 'book/delete/{{book.book_id}}/'>Delete</a>&nbsp;&nbsp;&nbsp;
+	<a href = '../../book/modify/{{book.book_id}}/'>Modify</a>&nbsp;&nbsp;&nbsp;
+	<a href = '../../book/delete/{{book.book_id}}/'>Delete</a>&nbsp;&nbsp;&nbsp;
 	
 {% endblock %}
 	

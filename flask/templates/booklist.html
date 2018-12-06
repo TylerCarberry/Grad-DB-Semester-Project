@@ -1,29 +1,35 @@
-{% extends "base.html"}
+{% extends "base.html" %}
 {% block h1 %}Books{% endblock %}
 
 {% block content %}
 	{% for book in books %}
-		<a href='/book/{{book.book_id}}'>{{book.title}}</a>
+		<h2><a href='/book/{{book.book_id}}'>{{book.title}}</a></h2>
+
 		Authors:
 		<ul>
 			{% for author in book.authors %}
-				<li>{{author.name}}</li>
+				<li>{{author.first_name}} {{author.last_name}}</li>
 			{% endfor %}
 		</ul>
+		Publisher: {{book.publisher.name}}
+<br/>
 	
-		Publisher: {{book.publisher}}
-	
-		Description: {{book.discription}}
+		Description: {{book.description}}
+<br/>
 
 		<ul>
-			{% for genre in book_genre %}
+			{% for genre in book.genre %}
 				<li>{{genre.name}} </li>
 			{% endfor %}
 		</ul>
-		Price: {{book.price}}
+		Price: {{'${:,.2f}'.format(book.price)}}
+<br/>
 		In stock: {{book.num_in_stock}}
+<br/>
 	
 	{% endfor %}
+
+	<br/>
 	<a href = 'book/new/'>Add new book</a>
 	
 {% endblock %}

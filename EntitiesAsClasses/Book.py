@@ -26,6 +26,7 @@ class Book(BASE):
 
     publisher = relationship("Publisher", backref=backref('book'))
     authors = relationship("Author", secondary='author_book',viewonly=True)
+    #genres = relationship("Genre", secondary='book_genre', viewonly=True)
 
     __table_args__ = (
         PrimaryKeyConstraint('book_id', name='PRIMARY'),
