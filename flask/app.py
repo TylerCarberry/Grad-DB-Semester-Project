@@ -1,4 +1,5 @@
 import os
+import urllib
 
 from flask import Flask, render_template, url_for, request, flash, redirect
 
@@ -36,6 +37,7 @@ session = Session()
 @app.route('/')
 def hello_world():
     return "<h1>Welcome to Rowan Bookstore</h1>" \
+           "<p><a href='/categories'> Shop</a></p>" \
            "<p><a href='/book'> View All Books</a></p>" \
            "<p><a href='/author'> View All Authors</a></p>" \
            "<p><a href='/publisher'> View All Publishers</a></p>"
@@ -132,6 +134,52 @@ def one_publisher(publisherId):
     for book in publisher.books:
         html += "<p><a href='/book/" + str(book.book_id) + "'> " + book.title + "</a></p>"
     return html
+
+
+@app.route('/categories/', methods=['GET'])
+def get_categories():
+    categories = session.execute("SELECT name FROM all_categories ORDER BY name").fetchall()
+
+    converted = []
+
+    for cat in categories:
+        it = dict(cat)
+        it['encoded_name'] = urllib.parse.quote_plus(it['name'])
+        converted.append(it)
+
+    return render_template('categories.html', categories=converted)
+
+
+@app.route('/specials/', methods=['GET'])
+def get_specials():
+    categories = session.execute("SELECT name FROM all_categories ORDER BY name").fetchall()
+
+    converted = []
+
+    for cat in categories:
+        it = dict(cat)
+        it['encoded_name'] = urllib.parse.quote_plus(it['name'])
+        converted.append(it)
+
+    return render_template('categories.html', categories=converted)
+
+
+@app.route('/item/', methods=['GET'])
+def get_all_items():
+    category = request.args.get('category')
+    if category is not None:
+        all_items = session.execute('SELECT * FROM all_items WHERE category="' + category + '" ORDER BY name').fetchall()
+    else:
+        all_items = session.execute("SELECT * FROM all_items").fetchall()
+    return render_template("items.html", items=all_items)
+
+
+@app.route('/item/<string:item_id>/', methods=['GET'])
+def get_specific_item(item_id):
+    the_item = session.execute('SELECT * FROM all_items WHERE id="' + item_id + '"').fetchone()
+    return render_template("item_details.html", item=the_item)
+
+
 
 
 if __name__ == '__main__':
