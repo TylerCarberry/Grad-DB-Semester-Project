@@ -74,7 +74,7 @@ def modify_book(bookId):
         return render_template('editBook.html', book=book)
 
 
-@app.route('/book/delete/<int:bookId>', methods=['GET', 'POST'])
+@app.route('/book/delete/<int:book_id>/', methods=['GET', 'POST'])
 def delete_book(book_id):
     book = session.query(Book.Book).filter_by(book_id=book_id).one()
     if request.method == 'POST':
@@ -94,10 +94,11 @@ def insert_book():
         num_in_stock = request.form['num_in_stock']
         pages = request.form['pages']
         release_year = request.form['release_year']
+        price = request.form['price']
         # need to change author orm
-        # author_id = session.query(Author.Author).filter_by(first_name=request.form['first_name'], last_name=request.form['last_name']).one()
+        author_id = session.query(Author.Author).filter_by(first_name=request.form['first_name'], last_name=request.form['last_name']).one()
         newBook = Book.Book(title=title, description=description, num_in_stock=num_in_stock, pages=pages,
-                            release_year=release_year)
+                            release_year=release_year, author_id = author_id, price = price)
         session.add(newBook)
         session.commit()
         flash("New book " + title + " created")
