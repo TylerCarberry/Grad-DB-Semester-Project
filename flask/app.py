@@ -168,7 +168,7 @@ def get_specials():
 def get_all_items():
     category = request.args.get('category')
     if category is not None:
-        all_items = session.execute('SELECT * FROM all_items WHERE category="' + category + '" ORDER BY name').fetchall()
+        all_items = session.execute('SELECT * FROM all_items WHERE category LIKE "%' + category + '%" ORDER BY name').fetchall()
     else:
         all_items = session.execute("SELECT * FROM all_items").fetchall()
     return render_template("items.html", items=all_items)
