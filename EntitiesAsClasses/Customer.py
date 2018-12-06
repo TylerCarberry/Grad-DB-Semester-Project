@@ -21,10 +21,10 @@ class Customer(BASE):
     address = Column(String(100), nullable=True)
 
     # wishlist relationship
-    books = relationship("Book", secondary="customer_book", viewonly=True)
+    # books = relationship("Book", secondary="wish_list", viewonly=True)
 
     # cart relationship
-    booksInCart = relationship("Book", secondary="customer_book", viewonly=True)
+    # booksInCart = relationship("Book", secondary="cart", viewonly=True)
 
     __table_args__ = (
         PrimaryKeyConstraint('customer_id', name='PRIMARY'), )
@@ -35,19 +35,19 @@ class Customer(BASE):
         self.address = address
 
 
-class Customer_Book(BASE):
-    __tablename__ = 'customer_book'
-    customer_id = Column(INTEGER, ForeignKey('customer.customer_id'), nullable=False)
-    book_id = Column(INTEGER, ForeignKey('book.book_id'), nullable=False)
-
-    customer = relationship("Customer", backref=backref("customer_book"))
-    book = relationship("Book", backref=backref('customer_book'))
-
-    __table_args__ = (
-        PrimaryKeyConstraint('customer_id', 'book_id', name='PRIMARY'),
-        ForeignKeyConstraint(['customer_id'], ['customer.customer_id']),
-        ForeignKeyConstraint(['book_id'], ['book.book_id']))
-
-    def __init__(self, customer=None, book=None):
-        self.customer = customer
-        self.book = book
+# class Customer_Book(BASE):
+#     __tablename__ = 'customer_book'
+#     customer_id = Column(INTEGER, ForeignKey('customer.customer_id'), nullable=False)
+#     book_id = Column(INTEGER, ForeignKey('book.book_id'), nullable=False)
+#
+#     customer = relationship("Customer", backref=backref("customer_book"))
+#     book = relationship("Book", backref=backref('customer_book'))
+#
+#     __table_args__ = (
+#         PrimaryKeyConstraint('customer_id', 'book_id', name='PRIMARY'),
+#         ForeignKeyConstraint(['customer_id'], ['customer.customer_id']),
+#         ForeignKeyConstraint(['book_id'], ['book.book_id']))
+#
+#     def __init__(self, customer=None, book=None):
+#         self.customer = customer
+#         self.book = book

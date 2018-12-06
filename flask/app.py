@@ -1,3 +1,5 @@
+import os
+
 from flask import Flask, render_template, url_for, request, flash, redirect
 
 app = Flask(__name__)
@@ -96,7 +98,7 @@ def insert_book():
         release_year = request.form['release_year']
         price = request.form['price']
         # need to change author orm
-        author_id = session.query(Author.Author).filter_by(first_name=request.form['first_name'], last_name=request.form['last_name']).one()
+        author_id = session.query(Author.Author).filter_by(author_id = request.form['author_id']).one()
         newBook = Book.Book(title=title, description=description, num_in_stock=num_in_stock, pages=pages,
                             release_year=release_year, author_id = author_id, price = price)
         session.add(newBook)
@@ -133,4 +135,5 @@ def one_publisher(publisherId):
 
 
 if __name__ == '__main__':
+    app.secret_key = os.urandom(24)
     app.run()
