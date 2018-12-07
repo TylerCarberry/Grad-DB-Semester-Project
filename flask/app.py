@@ -152,16 +152,9 @@ def get_categories():
 
 @app.route('/specials/', methods=['GET'])
 def get_specials():
-    categories = session.execute("SELECT name FROM all_categories ORDER BY name").fetchall()
-
-    converted = []
-
-    for cat in categories:
-        it = dict(cat)
-        it['encoded_name'] = urllib.parse.quote_plus(it['name'])
-        converted.append(it)
-
-    return render_template('categories.html', categories=converted)
+    specials = session.execute(
+            'SELECT * FROM specials ORDER BY name').fetchall()
+    return render_template("items.html", items=specials)
 
 
 @app.route('/item/', methods=['GET'])
@@ -179,6 +172,11 @@ def get_specific_item(item_id):
     the_item = session.execute('SELECT * FROM all_items WHERE id="' + item_id + '"').fetchone()
     return render_template("item_details.html", item=the_item)
 
+
+@app.route('/customer/', methods=['GET'])
+def get_all_customers():
+    all_customers = session.execute("SELECT * FROM all_customers").fetchall()
+    return render_template("customers.html", customers=all_customers)
 
 
 

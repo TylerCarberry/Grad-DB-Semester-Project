@@ -197,14 +197,14 @@ SELECT * FROM all_customers LIMIT 100;
 # Products
 # The view for northwind products
 
-CREATE OR REPLACE VIEW northwind_items(name, description, category, cost) AS
-SELECT p.product_name, ifnull(p.description, ''), p.category, p.standard_cost
+CREATE OR REPLACE VIEW northwind_items(id, name, description, category, cost) AS
+SELECT p.id, p.product_name, ifnull(p.description, ''), p.category, p.standard_cost
 FROM northwind.products p;
 
 
 # Adventure works products
-CREATE OR REPLACE VIEW adventure_items(name, description, category, cost) AS
-SELECT p.Name, pd.Description, pc.Name, p.ListPrice
+CREATE OR REPLACE VIEW adventure_items(id, name, description, category, cost) AS
+SELECT p.ProductID, p.Name, pd.Description, pc.Name, p.ListPrice
 FROM adventureworks.product p
 JOIN adventureworks.productsubcategory sub ON p.ProductSubcategoryID = sub.ProductSubcategoryID
 JOIN adventureworks.productcategory pc on sub.ProductCategoryID = pc.ProductCategoryID
@@ -218,8 +218,8 @@ JOIN adventureworks.productdescription pd on pd.ProductDescriptionID = longname.
 SELECT * FROM adventure_items;
 
 
-CREATE OR REPLACE VIEW sakila_items(name, description, category, cost) AS
-SELECT f.title, concat(f.rating, ' (', f.length, ' minutes) ', f.description), group_concat(c.name separator ','), f.replacement_cost
+CREATE OR REPLACE VIEW sakila_items(id, name, description, category, cost) AS
+SELECT f.film_id, f.title, concat(f.rating, ' (', f.length, ' minutes) ', f.description), group_concat(c.name separator ','), f.replacement_cost
 FROM sakila.film f
 JOIN sakila.film_category fc on fc.film_id = f.film_id
 JOIN sakila.category c on fc.category_id = c.category_id
@@ -228,9 +228,11 @@ GROUP BY f.film_id
 
 SELECT * FROM sakila_items;
 
+drop view rowan_items;
 
-CREATE OR REPLACE VIEW rowan_items(name, description, category, cost) AS
-SELECT b.title, b.description, group_concat(g.name separator ','), b.price
+CREATE OR REPLACE VIEW rowan_items(id, name, description, category, cost) AS
+SELECT b.book_id, b.title, b.description,
+       group_concat(g.name separator ','), b.price
 FROM carberryt9.book b
 JOIN carberryt9.book_genre bg on b.book_id = bg.book_id
 JOIN carberryt9.genre g on g.genre_id = bg.genre_id
@@ -241,21 +243,26 @@ SELECT * FROM rowan_items;
 
 
 # All items from sakila, northwind, adventure works
-CREATE OR REPLACE VIEW all_items (name, description, category, cost, store) AS
-  SELECT name, description, category, cost, 'northwind' FROM northwind_items
+CREATE OR REPLACE VIEW all_items (id, name, description, category, cost, store) AS
+  SELECT concat('northwind_', id), name, description, category, cost, 'northwind' FROM northwind_items
   UNION
-  SELECT name, description, category, cost, 'sakila' FROM sakila_items
+  SELECT concat('sakila_', id), name, description, category, cost, 'sakila' FROM sakila_items
   UNION
-  SELECT name, description, category, cost, 'adventureworks' FROM adventure_items
+  SELECT concat('adventure_', id), name, description, category, cost, 'adventureworks' FROM adventure_items
   UNION
-  SELECT name, description, category, cost, 'rowan' FROM rowan_items
+  SELECT concat('rowan_', id), name, description, category, cost, 'rowan' FROM rowan_items
 ;
 
 SELECT * FROM all_items;
 
 
+SELECT * FROM all_items ORDER BY category;
 
 
+# Run this if you are getting errors about sweeden charset
+SET collation_connection = 'utf8_general_ci';
+ALTER DATABASE carberryt9 CHARACTER SET utf8 COLLATE utf8_general_ci;
+ALTER TABLE transaction CONVERT TO CHARACTER SET utf8 COLLATE utf8_general_ci;
 
 
 # 7. Ability to generate a restocking order (should be saved in a ”restocking” table) if the supply of any of your products falls below the minimum stock level
@@ -270,21 +277,18 @@ CREATE TRIGGER restock_trigger BEFORE UPDATE ON carberryt9.book
     END IF ;
   END;
 
-
-# add rating and runtime to the description from saquila
-
 # 9
 # Get all categories
 CREATE OR REPLACE VIEW all_categories AS
 SELECT distinct name from carberryt9.genre rowan_books
 union (SELECT distinct name from sakila.category)
-union (SELECT distinct name from adventureworks.productsubcategory)
+union (SELECT distinct name from adventureworks.productcategory)
 union (SELECT distinct category from northwind.products);
 
 SELECT * from all_categories;
 
 # 9b
-SELECT * from all_items where category like '%Fantasy%'
+SELECT * from all_items;
 
 # 10. List of all your products whose inventory has fallen below the minimum stock level
 SELECT * FROM carberryt9.book WHERE num_in_stock < (SELECT value_constant from carberryt9.constants c where c.key_constant = 'restock_min');
@@ -298,7 +302,13 @@ WHERE
      WHERE c2.customer_id = c1.customer_id
      GROUP BY c2.customer_id) < now() - 30* 24* 60* 60;
 
-
+# 12 List of products that are not selling “too well”(you define this), which might be offered as specials
+CREATE OR REPLACE VIEW specials AS
+SELECT * from all_items a1 WHERE
+  ((SELECT max(t2.transaction_time) most_recent_order
+     FROM transaction t2 JOIN all_items a on a.id = t2.item_id
+      WHERE a.id = a1.id
+     GROUP BY a.id) < now() - 30*24*60*60);
 
 # 13. When items will ship
 # https://stackoverflow.com/a/32908851
