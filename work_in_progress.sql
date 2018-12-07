@@ -291,7 +291,10 @@ SELECT * from all_categories;
 SELECT * from all_items;
 
 # 10. List of all your products whose inventory has fallen below the minimum stock level
+CREATE OR REPLACE VIEW low_inventory AS
 SELECT * FROM carberryt9.book WHERE num_in_stock < (SELECT value_constant from carberryt9.constants c where c.key_constant = 'restock_min');
+
+SELECT title as name from low_inventory;
 
 # 11. List of customers who have not been “too active”(you define this) and for whom special offers should be made.
 # A not active customer is a customer who has previously placed an order before, but has not placed an order in the past month

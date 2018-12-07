@@ -38,9 +38,23 @@ session = Session()
 def hello_world():
     return "<h1>Welcome to Rowan Bookstore</h1>" \
            "<p><a href='/categories'> Shop</a></p>" \
+           "<p><a href='/admin'> Admin</a></p>" \
            "<p><a href='/book'> View All Books</a></p>" \
            "<p><a href='/author'> View All Authors</a></p>" \
            "<p><a href='/publisher'> View All Publishers</a></p>"
+
+
+@app.route('/admin')
+def admin():
+    return "<h1>Welcome to Rowan Bookstore - Admin Page</h1>" \
+           "<p><a href='/low_inventory'> Inventory that has fallen below the minimum stock level</a></p>"
+
+
+@app.route('/low_inventory')
+def low_inventory():
+    inventory = session.execute(
+        'SELECT title as name, concat("rowan_", book_id) as id FROM low_inventory ORDER BY title').fetchall()
+    return render_template("items.html", items=inventory)
 
 
 @app.route('/book')
