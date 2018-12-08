@@ -21,7 +21,7 @@ BASE = declarative_base()
 username = 'carberryt9'
 
 # The password to the database. Not your Rowan password!
-password = 'mustardday'
+password = 'password1'
 # ON ELVIS
 connection = create_engine('mysql+pymysql://' + username + ':' + password + '@elvis.rowan.edu/' + username)
 # ON LOCAL
