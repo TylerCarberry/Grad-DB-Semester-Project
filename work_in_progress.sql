@@ -152,6 +152,9 @@ SELECT a.AddressID, concat(a.AddressLine1, ifnull(concat(' ', a.AddressLine2), '
   JOIN adventureworks.stateprovince s ON s.StateProvinceID = a.StateProvinceID;
 
 
+SELECT * from adventure_customers;
+
+
 
 
 # List of sakila customers with first name, last name, email, and address
@@ -162,13 +165,15 @@ JOIN sakila.address a on a.address_id = c.address_id
 JOIN sakila.city city on a.city_id = city.city_id
 JOIN sakila.country country on city.country_id = country.country_id;
 
+SELECT * from sakila_customers;
+
 
 # List of sakila customers with first name, last name, email, and address
 CREATE OR REPLACE VIEW northwind_customers(first_name, last_name, email, address) AS
 SELECT c.first_name, c.last_name, ifnull(c.email_address, 'unknown email'), concat(c.address, ' ', c.city, ' ', c.state_province, ' ', c.zip_postal_code, ' ', c.country_region) from northwind.customers c
 ;
 
-SELECT * FROM sakila_customers;
+SELECT * FROM northwind_customers;
 
 # List of Rowan Books customers with first name, last name, email, and address
 CREATE OR REPLACE VIEW rowan_customers(first_name, last_name, email, address) AS
@@ -191,20 +196,20 @@ CREATE OR REPLACE VIEW all_customers (first_name, last_name, email, address, sto
   SELECT first_name, last_name, email, address, 'rowan_books' FROM rowan_customers
 ;
 
-SELECT * FROM all_customers LIMIT 100;
+SELECT * FROM all_customers;
 
 
 # Products
 # The view for northwind products
 
-CREATE OR REPLACE VIEW northwind_items(name, description, category, cost) AS
-SELECT p.product_name, ifnull(p.description, ''), p.category, p.standard_cost
+CREATE OR REPLACE VIEW northwind_items(id, name, description, category, cost) AS
+SELECT p.id, p.product_name, ifnull(p.description, ''), p.category, p.standard_cost
 FROM northwind.products p;
 
 
 # Adventure works products
-CREATE OR REPLACE VIEW adventure_items(name, description, category, cost) AS
-SELECT p.Name, pd.Description, pc.Name, p.ListPrice
+CREATE OR REPLACE VIEW adventure_items(id, name, description, category, cost) AS
+SELECT p.ProductID, p.Name, pd.Description, pc.Name, p.ListPrice
 FROM adventureworks.product p
 JOIN adventureworks.productsubcategory sub ON p.ProductSubcategoryID = sub.ProductSubcategoryID
 JOIN adventureworks.productcategory pc on sub.ProductCategoryID = pc.ProductCategoryID
@@ -218,8 +223,8 @@ JOIN adventureworks.productdescription pd on pd.ProductDescriptionID = longname.
 SELECT * FROM adventure_items;
 
 
-CREATE OR REPLACE VIEW sakila_items(name, description, category, cost) AS
-SELECT f.title, concat(f.rating, ' (', f.length, ' minutes) ', f.description), group_concat(c.name separator ','), f.replacement_cost
+CREATE OR REPLACE VIEW sakila_items(id, name, description, category, cost) AS
+SELECT f.film_id, f.title, concat(f.rating, ' (', f.length, ' minutes) ', f.description), group_concat(c.name separator ','), f.replacement_cost
 FROM sakila.film f
 JOIN sakila.film_category fc on fc.film_id = f.film_id
 JOIN sakila.category c on fc.category_id = c.category_id
@@ -228,9 +233,11 @@ GROUP BY f.film_id
 
 SELECT * FROM sakila_items;
 
+drop view rowan_items;
 
-CREATE OR REPLACE VIEW rowan_items(name, description, category, cost) AS
-SELECT b.title, b.description, group_concat(g.name separator ','), b.price
+CREATE OR REPLACE VIEW rowan_items(id, name, description, category, cost) AS
+SELECT b.book_id, b.title, b.description,
+       group_concat(g.name separator ','), b.price
 FROM carberryt9.book b
 JOIN carberryt9.book_genre bg on b.book_id = bg.book_id
 JOIN carberryt9.genre g on g.genre_id = bg.genre_id
@@ -241,21 +248,26 @@ SELECT * FROM rowan_items;
 
 
 # All items from sakila, northwind, adventure works
-CREATE OR REPLACE VIEW all_items (name, description, category, cost, store) AS
-  SELECT name, description, category, cost, 'northwind' FROM northwind_items
+CREATE OR REPLACE VIEW all_items (id, name, description, category, cost, store) AS
+  SELECT concat('northwind_', id), name, description, category, cost, 'northwind' FROM northwind_items
   UNION
-  SELECT name, description, category, cost, 'sakila' FROM sakila_items
+  SELECT concat('sakila_', id), name, description, category, cost, 'sakila' FROM sakila_items
   UNION
-  SELECT name, description, category, cost, 'adventureworks' FROM adventure_items
+  SELECT concat('adventure_', id), name, description, category, cost, 'adventureworks' FROM adventure_items
   UNION
-  SELECT name, description, category, cost, 'rowan' FROM rowan_items
+  SELECT concat('rowan_', id), name, description, category, cost, 'rowan' FROM rowan_items
 ;
 
 SELECT * FROM all_items;
 
 
+SELECT * FROM all_items ORDER BY category;
 
 
+# Run this if you are getting errors about sweeden charset
+SET collation_connection = 'utf8_general_ci';
+ALTER DATABASE carberryt9 CHARACTER SET utf8 COLLATE utf8_general_ci;
+ALTER TABLE wish_list CONVERT TO CHARACTER SET utf8 COLLATE utf8_general_ci;
 
 
 # 7. Ability to generate a restocking order (should be saved in a ”restocking” table) if the supply of any of your products falls below the minimum stock level
@@ -270,27 +282,29 @@ CREATE TRIGGER restock_trigger BEFORE UPDATE ON carberryt9.book
     END IF ;
   END;
 
-
-# add rating and runtime to the description from saquila
-
 # 9
 # Get all categories
 CREATE OR REPLACE VIEW all_categories AS
 SELECT distinct name from carberryt9.genre rowan_books
 union (SELECT distinct name from sakila.category)
-union (SELECT distinct name from adventureworks.productsubcategory)
+union (SELECT distinct name from adventureworks.productcategory)
 union (SELECT distinct category from northwind.products);
 
 SELECT * from all_categories;
 
 # 9b
-SELECT * from all_items where category like '%Fantasy%'
+SELECT * from all_items;
 
 # 10. List of all your products whose inventory has fallen below the minimum stock level
-SELECT * FROM carberryt9.book WHERE num_in_stock < (SELECT value_constant from carberryt9.constants c where c.key_constant = 'restock_min');
+CREATE OR REPLACE VIEW low_inventory AS
+SELECT * FROM carberryt9.book WHERE num_in_stock <
+                                    (SELECT value_constant from carberryt9.constants c where c.key_constant = 'restock_min');
+
+SELECT title as name from low_inventory;
 
 # 11. List of customers who have not been “too active”(you define this) and for whom special offers should be made.
 # A not active customer is a customer who has previously placed an order before, but has not placed an order in the past month
+CREATE OR REPLACE VIEW not_active_customers AS
 SELECT * from carberryt9.customer c1
 WHERE
     (SELECT max(t2.transaction_time) most_recent_order
@@ -298,9 +312,45 @@ WHERE
      WHERE c2.customer_id = c1.customer_id
      GROUP BY c2.customer_id) < now() - 30* 24* 60* 60;
 
-
+# 12 List of products that are not selling “too well”(you define this), which might be offered as specials
+CREATE OR REPLACE VIEW specials AS
+SELECT * from all_items a1 WHERE
+  ((SELECT max(t2.transaction_time) most_recent_order
+     FROM transaction t2 JOIN all_items a on a.id = t2.item_id
+      WHERE a.id = a1.id
+     GROUP BY a.id) < now() - 30*24*60*60);
 
 # 13. When items will ship
 # https://stackoverflow.com/a/32908851
 CREATE OR REPLACE VIEW when_will_order_ship (day_of_week) AS
 SELECT DAYNAME(CONCAT('2018-08-2', (SELECT if(WEEKDAY(now()) < 5, (weekday(now()) + 4) % 5, 3))));
+
+
+# A report showing wished for products that were never purchased by the customers who wished for them
+# SELECT * from all_categories c JOIN all_items a on c.name = a.category;
+
+
+# 18. A report showing the most highly wished for products in every category
+CREATE OR REPLACE VIEW category_item_and_num_wished AS
+  SELECT c.name category_name, i.id item_id, count(w.customer_id) num_wished FROM all_categories c
+  JOIN all_items i ON i.category LIKE concat('%', c.name, '%')
+  JOIN wish_list w ON w.item_id = i.id
+GROUP BY c.name, i.id
+ORDER BY i.id;
+
+SELECT * FROM category_item_and_num_wished;
+
+CREATE OR REPLACE VIEW category_and_most_wished AS
+SELECT category_name, max(num_wished) most_wished FROM
+category_item_and_num_wished
+GROUP BY category_name
+;
+
+SELECT * FROM category_and_most_wished;
+
+
+SELECT most.category_name category, i.id item_id, i.name item_name, most.most_wished most_wished FROM category_and_most_wished most
+  JOIN category_item_and_num_wished num ON most.category_name = num.category_name
+  JOIN all_items i ON i.id = num.item_id
+WHERE most.most_wished = num.num_wished;
+
