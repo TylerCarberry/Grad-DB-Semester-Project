@@ -1,6 +1,9 @@
 {% extends "base.html" %}
 
 {% block content %}
+{% if user %}
+Current user logged in {{user}}
+{% endif %}
 <h2>{{book.title}}</h2>
 	Authors:
 	<ul>
@@ -22,9 +25,12 @@
 	
 	In stock: {{book.num_in_stock}}
 <p></p>
-
+	{% if admin %}
 	<a href = '../../book/modify/{{book.book_id}}/'>Modify</a>&nbsp;&nbsp;&nbsp;
 	<a href = '../../book/delete/{{book.book_id}}/'>Delete</a>&nbsp;&nbsp;&nbsp;
-	
+	{% else %}
+	<a href = '../../addToWishList/rowan_{{book.book_id}}/'>Add to Wish List</a> &nbsp;&nbsp;
+	<a href = '../../addToCart/rowan_{{book.book_id}}/'>'Add to Cart</a> &nbsp;&nbsp;
+	{% endif %}
 {% endblock %}
 	

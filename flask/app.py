@@ -33,6 +33,7 @@ Session = sessionmaker(bind=connection)
 # create a session for our use from our generated Session class.
 session = Session()
 
+current = ''
 
 @app.route('/')
 def hello_world():
@@ -47,10 +48,12 @@ def hello_world():
 # TODO: Make this a template
 @app.route('/admin/')
 def admin():
+    current = 'admin'
     return "<h1>Welcome to Rowan Bookstore - Admin Page</h1>" \
            "<p><a href='/low_inventory'> Inventory that has fallen below the minimum stock level</a></p>" \
-           "<p><a href='/when_ship'> When will orders ship?</a></p" \
-           "><p><a href='/not_active_customers'> Not active customers</a></p>"
+           "<p><a href='/when_ship'> When will orders ship?</a></p>" \
+           "<p><a href='/never_bought'> Wish list but never bought</a></p>" \
+           "<p><a href='/not_active_customers'> Not active customers</a></p>"
 
 
 @app.route('/low_inventory/')
@@ -84,9 +87,16 @@ def all_books():
 @app.route('/book/<int:bookId>/')
 def one_book(bookId):
     book = session.query(Book.Book).filter_by(book_id=bookId).one()
-    return render_template('book.html',
+    if current == 'admin':
+        return render_template('book.html',
                            book=book,
-                           title=book.title)
+                           title=book.title,
+                           admin=current)
+    else:
+        return render_template('book.html',
+                           book=book,
+                           title=book.title,
+                           user=current)
 
 
 @app.route('/book/modify/<int:bookId>/', methods=['GET', 'POST'])
@@ -209,6 +219,12 @@ def get_specific_item(item_id):
 def get_all_customers():
     all_customers = session.execute("SELECT * FROM all_customers").fetchall()
     return render_template("customers.html", customers=all_customers)
+
+
+@app.route('/never_bought/', methods=['GET'])
+def wish_list_never_bought():
+    never_bought = session.execute("SELECT * FROM wish_list_never_purchased").fetchall()
+    return render_template("never_bought.html", never_bought=never_bought)
 
 
 if __name__ == '__main__':

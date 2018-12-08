@@ -5,7 +5,9 @@
 <p>{{item.description}}</p>
 <p>{{'${:,.2f}'.format(item.cost)}}</p>
 
-<p>Add to cart</p>
-	
+
+<a href = '../../addToWishList/{{item_id}}/'>Add to wish list</a>
+<a href = '../../addToCart/{{item_id}}/'>Add to cart</a>
+
 {% endblock %}
 	

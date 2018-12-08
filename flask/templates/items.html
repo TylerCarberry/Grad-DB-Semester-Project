@@ -5,8 +5,11 @@
 
 	<ul>
 		{% for item in items %}
-
-		<li><a href = '/item/{{item.id}}/'>{{item.name.capitalize()}}</a></li>
+			{% if item.id.startswith('rowan_') %}
+				<li><a href = '/books/{{item.id}}'>{{item.name.capitalize()}}</a></li>
+			{% else %}
+				<li><a href = '/item/{{item.id}}/'>{{item.name.capitalize()}}</a></li>
+			{% endif %}
 		{% endfor %}
 	</ul>&nbsp;
 	

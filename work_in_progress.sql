@@ -183,6 +183,8 @@ SELECT c.first_name, c.last_name, ifnull(c.email, 'unknown email'), c.address
 
 SELECT * FROM rowan_customers;
 
+show tables;
+
 
 # All customers from sakila, northwind, adventure works
 # TODO: Add ours also
@@ -354,3 +356,17 @@ SELECT most.category_name category, i.id item_id, i.name item_name, most.most_wi
   JOIN all_items i ON i.id = num.item_id
 WHERE most.most_wished = num.num_wished;
 
+# 19. A report showing wished for products that were never purchased by the customers who wished for them
+
+CREATE OR REPLACE VIEW wish_list_never_purchased AS
+SELECT c2.customer_id customer_id, concat(c2.first_name, ' ', c2.last_name) customer_name, i.id item_id, i.name item_name
+FROM wish_list w
+       JOIN customer c2 ON w.customer_id = c2.customer_id
+       JOIN all_items i ON i.id = w.item_id
+
+WHERE w.item_id NOT IN
+      (SELECT t.item_id
+       FROM transaction t JOIN customer c ON t.customer_id = c.customer_id
+       WHERE c.customer_id = w.customer_id);
+
+SELECT * FROM wish_list_never_purchased;
