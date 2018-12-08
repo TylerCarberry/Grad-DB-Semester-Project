@@ -48,6 +48,7 @@ def hello_world():
 # TODO: Make this a template
 @app.route('/admin/')
 def admin():
+    global current
     current = 'admin'
     return "<h1>Welcome to Rowan Bookstore - Admin Page</h1>" \
            "<p><a href='/low_inventory'> Inventory that has fallen below the minimum stock level</a></p>" \
@@ -154,28 +155,41 @@ def insert_book():
 
 @app.route('/publisher/')
 def all_publishers():
-    print("Publishers:\n")
     publishers = session.query(Publisher.Publisher).all()
-    print(publishers)
-    html = '<h1> Publishers </h1>'
-    for publisher in publishers:
-        html += "<p><a href='/publisher/" + str(
-            publisher.publisher_id) + "'> " + publisher.name + "</a></p>"
-    return html
+    return render_template('publisherlist.html',
+                           publishers=publishers)
 
 
 @app.route('/publisher/<int:publisherId>/')
 def one_publisher(publisherId):
-    print("Publisher:\n")
     publisher = session.query(Publisher.Publisher).filter_by(publisher_id=publisherId).one()
-    print(publisher)
-    html = '<h1>' + publisher.name + '</h1>'
-    html += "<h2> Books: </h2>"
+    return render_template('publisher.html',
+                           publisher=publisher)
 
-    for book in publisher.books:
-        html += "<p><a href='/book/" + str(book.book_id) + "'> " + book.title + "</a></p>"
-    return html
+@app.route('/publisher/new/', methods=['GET','POST'])
+def new_publisher():
+    if request.method == 'POST':
+        name=request.form['publisher_name']
+        publisher = Publisher.Publisher(name)
+        session.add(publisher)
+        session.commit()
+        flash("New publisher " + name + " created")
+        return redirect(url_for('all_publishers'))
+    else:
+        return render_template('newPublisher.html')
 
+@app.route('/publisher/modify/<int:publisherId>', methods=['GET','POST'])
+def modify_publisher(publisherId):
+    publisher = session.query(Publisher.Publisher).filter_by(publisher_id=publisherId).one()
+    if request.method == 'POST':
+        publisher.name=request.form['publisher_name']
+        session.add(publisher)
+        session.commit()
+        flash("Publisher " + publisher.name + " edited")
+        return redirect(url_for('all_publishers'))
+    else:
+        return render_template('editPublisher.html',
+                               publisher=publisher)
 
 @app.route('/categories/', methods=['GET'])
 def get_categories():
