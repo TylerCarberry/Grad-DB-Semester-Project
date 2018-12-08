@@ -225,7 +225,7 @@ def get_all_items():
 
 @app.route('/item/<string:item_id>/', methods=['GET'])
 def get_specific_item(item_id):
-    the_item = session.execute('SELECT * FROM all_items WHERE id="' + item_id + '"').fetchone()
+    the_item = session.execute('SELECT * FROM all_items_with_rating WHERE id="' + item_id + '"').fetchone()
     return render_template("item_details.html", item=the_item)
 
 
