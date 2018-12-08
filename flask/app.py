@@ -129,16 +129,17 @@ def insert_book():
         pages = request.form['pages']
         release_year = request.form['release_year']
         price = request.form['price']
-        # need to change author orm
-        author_id = session.query(Author.Author).filter_by(author_id=request.form['author_id']).one()
+        author = session.query(Author.Author).filter_by(author_id = request.form['author_id']).one()
+        print (author.author_id)
         newBook = Book.Book(title=title, description=description, num_in_stock=num_in_stock, pages=pages,
-                            release_year=release_year, author_id=author_id, price=price)
+                            release_year=release_year, author=author, price=price)
         session.add(newBook)
         session.commit()
         flash("New book " + title + " created")
         return redirect(url_for('all_books'))
     else:
-        return render_template('newBook.html')
+        authors = session.query(Author.Author).all()
+        return render_template('newBook.html', authors=authors)
 
 
 @app.route('/publisher/')
