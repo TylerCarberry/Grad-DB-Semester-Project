@@ -47,7 +47,9 @@ def hello_world():
 @app.route('/admin')
 def admin():
     return "<h1>Welcome to Rowan Bookstore - Admin Page</h1>" \
-           "<p><a href='/low_inventory'> Inventory that has fallen below the minimum stock level</a></p>"
+           "<p><a href='/low_inventory'> Inventory that has fallen below the minimum stock level</a></p>" \
+           "<p><a href='/when_ship'> When will orders ship?</a></p" \
+           "><p><a href='/not_active_customers'> Not active customers</a></p>"
 
 
 @app.route('/low_inventory')
@@ -55,6 +57,19 @@ def low_inventory():
     inventory = session.execute(
         'SELECT title as name, concat("rowan_", book_id) as id FROM low_inventory ORDER BY title').fetchall()
     return render_template("items.html", items=inventory)
+
+
+@app.route('/when_ship')
+def when_ship():
+    day = session.execute(
+        'SELECT day_of_week FROM when_will_order_ship').fetchone()
+    return "Orders bought today will ship on " + day["day_of_week"]
+
+
+@app.route('/not_active_customers/', methods=['GET'])
+def not_active_customers():
+    all_customers = session.execute("SELECT * FROM not_active_customers").fetchall()
+    return render_template("customers.html", customers=all_customers)
 
 
 @app.route('/book')

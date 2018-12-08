@@ -1,13 +1,11 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h2>Categories</h2>
-
-<h2>All Customers</h2>
+<h2>Customers</h2>
 
 	<ul>
-		{% for customer in customer %}
-        <li><a href = {{"customer.email}}>{{customer.first_name}} {{customer.last_name}}</a>&nbsp;</li>
+		{% for customer in customers %}
+        <li><a href = {{customer.email}}>{{customer.first_name}} {{customer.last_name}}</a></li>
 		{% endfor %}
 	</ul>&nbsp;
 	
