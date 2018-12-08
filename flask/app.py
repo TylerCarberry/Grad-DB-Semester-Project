@@ -44,7 +44,8 @@ def hello_world():
            "<p><a href='/publisher'> View All Publishers</a></p>"
 
 
-@app.route('/admin')
+# TODO: Make this a template
+@app.route('/admin/')
 def admin():
     return "<h1>Welcome to Rowan Bookstore - Admin Page</h1>" \
            "<p><a href='/low_inventory'> Inventory that has fallen below the minimum stock level</a></p>" \
@@ -52,14 +53,14 @@ def admin():
            "><p><a href='/not_active_customers'> Not active customers</a></p>"
 
 
-@app.route('/low_inventory')
+@app.route('/low_inventory/')
 def low_inventory():
     inventory = session.execute(
         'SELECT title as name, concat("rowan_", book_id) as id FROM low_inventory ORDER BY title').fetchall()
     return render_template("items.html", items=inventory)
 
 
-@app.route('/when_ship')
+@app.route('/when_ship/')
 def when_ship():
     day = session.execute(
         'SELECT day_of_week FROM when_will_order_ship').fetchone()
@@ -72,7 +73,7 @@ def not_active_customers():
     return render_template("customers.html", customers=all_customers)
 
 
-@app.route('/book')
+@app.route('/book/')
 def all_books():
     books = session.query(Book.Book).all()
     return render_template('booklist.html',
@@ -95,10 +96,10 @@ def modify_book(bookId):
         book.title = request.form['title']
         book.description = request.form['description']
         book.pages = request.form['pages']
-        #book.release_year = request.form['release_year']
-        #book.price = request.form['price']
-        #book.publisher_id = request.form['publisher_id']
-        #session.
+        # book.release_year = request.form['release_year']
+        # book.price = request.form['price']
+        # book.publisher_id = request.form['publisher_id']
+        # session.
         session.add(book)
         session.commit()
         flash(book.title + "'s information updated")
@@ -129,9 +130,9 @@ def insert_book():
         release_year = request.form['release_year']
         price = request.form['price']
         # need to change author orm
-        author_id = session.query(Author.Author).filter_by(author_id = request.form['author_id']).one()
+        author_id = session.query(Author.Author).filter_by(author_id=request.form['author_id']).one()
         newBook = Book.Book(title=title, description=description, num_in_stock=num_in_stock, pages=pages,
-                            release_year=release_year, author_id = author_id, price = price)
+                            release_year=release_year, author_id=author_id, price=price)
         session.add(newBook)
         session.commit()
         flash("New book " + title + " created")
@@ -140,7 +141,7 @@ def insert_book():
         return render_template('newBook.html')
 
 
-@app.route('/publisher')
+@app.route('/publisher/')
 def all_publishers():
     print("Publishers:\n")
     publishers = session.query(Publisher.Publisher).all()
@@ -182,7 +183,7 @@ def get_categories():
 @app.route('/specials/', methods=['GET'])
 def get_specials():
     specials = session.execute(
-            'SELECT * FROM specials ORDER BY name').fetchall()
+        'SELECT * FROM specials ORDER BY name').fetchall()
     return render_template("items.html", items=specials)
 
 
@@ -190,7 +191,8 @@ def get_specials():
 def get_all_items():
     category = request.args.get('category')
     if category is not None:
-        all_items = session.execute('SELECT * FROM all_items WHERE category LIKE "%' + category + '%" ORDER BY name').fetchall()
+        all_items = session.execute(
+            'SELECT * FROM all_items WHERE category LIKE "%' + category + '%" ORDER BY name').fetchall()
     else:
         all_items = session.execute("SELECT * FROM all_items").fetchall()
     return render_template("items.html", items=all_items)
@@ -206,7 +208,6 @@ def get_specific_item(item_id):
 def get_all_customers():
     all_customers = session.execute("SELECT * FROM all_customers").fetchall()
     return render_template("customers.html", customers=all_customers)
-
 
 
 if __name__ == '__main__':
