@@ -1,4 +1,5 @@
 import os
+import urllib
 
 from flask import Flask, render_template, url_for, request, flash, redirect
 
@@ -36,12 +37,43 @@ session = Session()
 @app.route('/')
 def hello_world():
     return "<h1>Welcome to Rowan Bookstore</h1>" \
+           "<p><a href='/categories'> Shop</a></p>" \
+           "<p><a href='/admin'> Admin</a></p>" \
            "<p><a href='/book'> View All Books</a></p>" \
            "<p><a href='/author'> View All Authors</a></p>" \
            "<p><a href='/publisher'> View All Publishers</a></p>"
 
 
-@app.route('/book')
+# TODO: Make this a template
+@app.route('/admin/')
+def admin():
+    return "<h1>Welcome to Rowan Bookstore - Admin Page</h1>" \
+           "<p><a href='/low_inventory'> Inventory that has fallen below the minimum stock level</a></p>" \
+           "<p><a href='/when_ship'> When will orders ship?</a></p" \
+           "><p><a href='/not_active_customers'> Not active customers</a></p>"
+
+
+@app.route('/low_inventory/')
+def low_inventory():
+    inventory = session.execute(
+        'SELECT title as name, concat("rowan_", book_id) as id FROM low_inventory ORDER BY title').fetchall()
+    return render_template("items.html", items=inventory)
+
+
+@app.route('/when_ship/')
+def when_ship():
+    day = session.execute(
+        'SELECT day_of_week FROM when_will_order_ship').fetchone()
+    return "Orders bought today will ship on " + day["day_of_week"]
+
+
+@app.route('/not_active_customers/', methods=['GET'])
+def not_active_customers():
+    all_customers = session.execute("SELECT * FROM not_active_customers").fetchall()
+    return render_template("customers.html", customers=all_customers)
+
+
+@app.route('/book/')
 def all_books():
     books = session.query(Book.Book).all()
     return render_template('booklist.html',
@@ -64,10 +96,10 @@ def modify_book(bookId):
         book.title = request.form['title']
         book.description = request.form['description']
         book.pages = request.form['pages']
-        #book.release_year = request.form['release_year']
-        #book.price = request.form['price']
-        #book.publisher_id = request.form['publisher_id']
-        #session.
+        # book.release_year = request.form['release_year']
+        # book.price = request.form['price']
+        # book.publisher_id = request.form['publisher_id']
+        # session.
         session.add(book)
         session.commit()
         flash(book.title + "'s information updated")
@@ -98,9 +130,9 @@ def insert_book():
         release_year = request.form['release_year']
         price = request.form['price']
         # need to change author orm
-        author_id = session.query(Author.Author).filter_by(author_id = request.form['author_id']).one()
+        author_id = session.query(Author.Author).filter_by(author_id=request.form['author_id']).one()
         newBook = Book.Book(title=title, description=description, num_in_stock=num_in_stock, pages=pages,
-                            release_year=release_year, author_id = author_id, price = price)
+                            release_year=release_year, author_id=author_id, price=price)
         session.add(newBook)
         session.commit()
         flash("New book " + title + " created")
@@ -109,7 +141,7 @@ def insert_book():
         return render_template('newBook.html')
 
 
-@app.route('/publisher')
+@app.route('/publisher/')
 def all_publishers():
     print("Publishers:\n")
     publishers = session.query(Publisher.Publisher).all()
@@ -132,6 +164,50 @@ def one_publisher(publisherId):
     for book in publisher.books:
         html += "<p><a href='/book/" + str(book.book_id) + "'> " + book.title + "</a></p>"
     return html
+
+
+@app.route('/categories/', methods=['GET'])
+def get_categories():
+    categories = session.execute("SELECT name FROM all_categories ORDER BY name").fetchall()
+
+    converted = []
+
+    for cat in categories:
+        it = dict(cat)
+        it['encoded_name'] = urllib.parse.quote_plus(it['name'])
+        converted.append(it)
+
+    return render_template('categories.html', categories=converted)
+
+
+@app.route('/specials/', methods=['GET'])
+def get_specials():
+    specials = session.execute(
+        'SELECT * FROM specials ORDER BY name').fetchall()
+    return render_template("items.html", items=specials)
+
+
+@app.route('/item/', methods=['GET'])
+def get_all_items():
+    category = request.args.get('category')
+    if category is not None:
+        all_items = session.execute(
+            'SELECT * FROM all_items WHERE category LIKE "%' + category + '%" ORDER BY name').fetchall()
+    else:
+        all_items = session.execute("SELECT * FROM all_items").fetchall()
+    return render_template("items.html", items=all_items)
+
+
+@app.route('/item/<string:item_id>/', methods=['GET'])
+def get_specific_item(item_id):
+    the_item = session.execute('SELECT * FROM all_items WHERE id="' + item_id + '"').fetchone()
+    return render_template("item_details.html", item=the_item)
+
+
+@app.route('/customer/', methods=['GET'])
+def get_all_customers():
+    all_customers = session.execute("SELECT * FROM all_customers").fetchall()
+    return render_template("customers.html", customers=all_customers)
 
 
 if __name__ == '__main__':
