@@ -36,20 +36,26 @@ session = Session()
 current = ''
 
 @app.route('/')
-def hello_world():
-    return "<h1>Welcome to Rowan Bookstore</h1>" \
-           "<p><a href='/categories'> Shop</a></p>" \
-           "<p><a href='/admin'> Admin</a></p>" \
-           "<p><a href='/book'> View All Books</a></p>" \
-           "<p><a href='/author'> View All Authors</a></p>" \
-           "<p><a href='/publisher'> View All Publishers</a></p>"
+def home():
+    return render_template("home.html")
+
+
+@app.route('/shop')
+def shop():
+    global current
+    current = 'admin'
+    return "<h1>Shop</h1>" \
+           "<p><a href='/categories'>Shop By Category</a></p>" \
+           "<p><a href='/book'>View All Books</a></p>" \
+           "<p><a href='/author'>View All Authors</a></p>" \
+           "<p><a href='/publisher'>View All Publishers</a></p>"
 
 
 # TODO: Make this a template
 @app.route('/admin/')
 def admin():
     global current
-    current = 'admin'
+    current = 'Tyler'
     return "<h1>Welcome to Rowan Bookstore - Admin Page</h1>" \
            "<p><a href='/low_inventory'> Inventory that has fallen below the minimum stock level</a></p>" \
            "<p><a href='/when_ship'> When will orders ship?</a></p>" \
