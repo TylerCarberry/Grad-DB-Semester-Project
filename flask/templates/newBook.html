@@ -5,10 +5,13 @@
 		<label for='title'>Book Title: </label>
 		<input type='text' size = '50' name='title' value=''/>
 		<br/>
-		Authors:
 
-		<label for='author_id'>Author: </label>
-		<input type='text' size = '50' name='author_id' value=''/>
+		<label for='author_name'>Author: </label>
+		<select name="author_id">
+			{% for author in authors %}
+			<option value="{{author.author_id}}"> {{author.first_name}} {{author.last_name}}</option>
+ 			{% endfor %}
+		</select>
 
 		<br/>
 		<label for='publisher'>Publisher: </label>
