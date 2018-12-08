@@ -152,6 +152,9 @@ SELECT a.AddressID, concat(a.AddressLine1, ifnull(concat(' ', a.AddressLine2), '
   JOIN adventureworks.stateprovince s ON s.StateProvinceID = a.StateProvinceID;
 
 
+SELECT * from adventure_customers;
+
+
 
 
 # List of sakila customers with first name, last name, email, and address
@@ -162,13 +165,15 @@ JOIN sakila.address a on a.address_id = c.address_id
 JOIN sakila.city city on a.city_id = city.city_id
 JOIN sakila.country country on city.country_id = country.country_id;
 
+SELECT * from sakila_customers;
+
 
 # List of sakila customers with first name, last name, email, and address
 CREATE OR REPLACE VIEW northwind_customers(first_name, last_name, email, address) AS
 SELECT c.first_name, c.last_name, ifnull(c.email_address, 'unknown email'), concat(c.address, ' ', c.city, ' ', c.state_province, ' ', c.zip_postal_code, ' ', c.country_region) from northwind.customers c
 ;
 
-SELECT * FROM sakila_customers;
+SELECT * FROM northwind_customers;
 
 # List of Rowan Books customers with first name, last name, email, and address
 CREATE OR REPLACE VIEW rowan_customers(first_name, last_name, email, address) AS
@@ -191,7 +196,7 @@ CREATE OR REPLACE VIEW all_customers (first_name, last_name, email, address, sto
   SELECT first_name, last_name, email, address, 'rowan_books' FROM rowan_customers
 ;
 
-SELECT * FROM all_customers LIMIT 100;
+SELECT * FROM all_customers;
 
 
 # Products
@@ -262,7 +267,7 @@ SELECT * FROM all_items ORDER BY category;
 # Run this if you are getting errors about sweeden charset
 SET collation_connection = 'utf8_general_ci';
 ALTER DATABASE carberryt9 CHARACTER SET utf8 COLLATE utf8_general_ci;
-ALTER TABLE transaction CONVERT TO CHARACTER SET utf8 COLLATE utf8_general_ci;
+ALTER TABLE wish_list CONVERT TO CHARACTER SET utf8 COLLATE utf8_general_ci;
 
 
 # 7. Ability to generate a restocking order (should be saved in a ”restocking” table) if the supply of any of your products falls below the minimum stock level
@@ -292,12 +297,14 @@ SELECT * from all_items;
 
 # 10. List of all your products whose inventory has fallen below the minimum stock level
 CREATE OR REPLACE VIEW low_inventory AS
-SELECT * FROM carberryt9.book WHERE num_in_stock < (SELECT value_constant from carberryt9.constants c where c.key_constant = 'restock_min');
+SELECT * FROM carberryt9.book WHERE num_in_stock <
+                                    (SELECT value_constant from carberryt9.constants c where c.key_constant = 'restock_min');
 
 SELECT title as name from low_inventory;
 
 # 11. List of customers who have not been “too active”(you define this) and for whom special offers should be made.
 # A not active customer is a customer who has previously placed an order before, but has not placed an order in the past month
+CREATE OR REPLACE VIEW not_active_customers AS
 SELECT * from carberryt9.customer c1
 WHERE
     (SELECT max(t2.transaction_time) most_recent_order
@@ -317,3 +324,33 @@ SELECT * from all_items a1 WHERE
 # https://stackoverflow.com/a/32908851
 CREATE OR REPLACE VIEW when_will_order_ship (day_of_week) AS
 SELECT DAYNAME(CONCAT('2018-08-2', (SELECT if(WEEKDAY(now()) < 5, (weekday(now()) + 4) % 5, 3))));
+
+
+# A report showing wished for products that were never purchased by the customers who wished for them
+# SELECT * from all_categories c JOIN all_items a on c.name = a.category;
+
+
+# 18. A report showing the most highly wished for products in every category
+CREATE OR REPLACE VIEW category_item_and_num_wished AS
+  SELECT c.name category_name, i.id item_id, count(w.customer_id) num_wished FROM all_categories c
+  JOIN all_items i ON i.category LIKE concat('%', c.name, '%')
+  JOIN wish_list w ON w.item_id = i.id
+GROUP BY c.name, i.id
+ORDER BY i.id;
+
+SELECT * FROM category_item_and_num_wished;
+
+CREATE OR REPLACE VIEW category_and_most_wished AS
+SELECT category_name, max(num_wished) most_wished FROM
+category_item_and_num_wished
+GROUP BY category_name
+;
+
+SELECT * FROM category_and_most_wished;
+
+
+SELECT most.category_name category, i.id item_id, i.name item_name, most.most_wished most_wished FROM category_and_most_wished most
+  JOIN category_item_and_num_wished num ON most.category_name = num.category_name
+  JOIN all_items i ON i.id = num.item_id
+WHERE most.most_wished = num.num_wished;
+
