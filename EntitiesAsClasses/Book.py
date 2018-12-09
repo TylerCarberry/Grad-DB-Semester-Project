@@ -45,3 +45,8 @@ class Book(BASE):
     def addAuthor(self, author):
         newEntry = Author.Author_Book(author=author, book=self)
         self.author_book.append(newEntry)
+
+
+
+
+

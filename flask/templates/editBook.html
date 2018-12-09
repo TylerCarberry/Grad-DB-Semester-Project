@@ -5,14 +5,27 @@
 		<label for='title'>Book Title: </label>
 		<input type='text' size = '50' name='title' value='{{book.title}}'/>
 		<br/>
-		Authors:
-		<ul>
-			{% for author in book.authors %}
-				<label for='author'>Author: </label>
-				<input type='text' size='50' name='author' value='{{author.name}}'/>
-			{% endfor %}
-		</ul>
 
+		<label for='author_name'>Author(s): </label>
+		{% for author in book.authors %}
+			<select name="author_id_{{author.author_id}}">
+				<option value="0" >Delete author</option>
+				{% for currentAuthor in allAuthors %}
+					{% if currentAuthor.author_id == author.author_id %}
+						<option value="{{currentAuthor.author_id}}" selected> {{currentAuthor.first_name}} {{currentAuthor.last_name}}</option>
+					{% else %}
+						<option value="{{currentAuthor.author_id}}" > {{currentAuthor.first_name}} {{currentAuthor.last_name}}</option>
+					{% endif %}
+				{% endfor %}
+			</select>
+		{% endfor %}
+		<select name="new_author">
+			<option value="0" selected>Add new author</option>
+			{% for currentAuthor in allAuthors %}
+				<option value="{{currentAuthor.author_id}}" > {{currentAuthor.first_name}} {{currentAuthor.last_name}}</option>
+			{% endfor %}
+		</select>
+		<br/>
 		<label for='publisher'>Publisher: </label>
 		<input type='text' size = '50' name='publisher' value='{{book.publisher.name}}'/>
 
