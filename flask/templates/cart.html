@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>View Cart</h2>
+
+    {% if not cart %}
+        <p>Your cart is empty</p>
+    {% endif %}
+
+	<ul>
+		{% for item in cart %}
+			<li><a href = '/item/{{item.item_id}}/'>{{item.item_id.capitalize()}}</a></li>
+		{% endfor %}
+
+
+	</ul>
+
+<p>Checkout</p>&nbsp;
+	
+{% endblock %}
+	

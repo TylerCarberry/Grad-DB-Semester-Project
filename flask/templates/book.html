@@ -25,7 +25,7 @@ Current user logged in {{user}}
 	
 	In stock: {{book.num_in_stock}}
 <p></p>
-	{% if admin %}
+	{% if current_user_id == 0 %}
 	<a href = '../../book/modify/{{book.book_id}}/'>Modify</a>&nbsp;&nbsp;&nbsp;
 	<a href = '../../book/delete/{{book.book_id}}/'>Delete</a>&nbsp;&nbsp;&nbsp;
 	{% else %}
