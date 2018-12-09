@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block content %}
+{% if user %}
+    Current user logged in {{user}}
+{% endif %}
+<h2>Authors:</h2>
+	<ul>
+		{% for author in authors %}
+			<li>{{author.first_name}} {{author.last_name}}</li>
+		{% endfor %}
+	</ul>
+
+{% endblock %}

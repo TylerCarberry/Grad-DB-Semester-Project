@@ -289,6 +289,10 @@ def wish_list_never_bought():
     never_bought = session.execute("SELECT * FROM wish_list_never_purchased").fetchall()
     return render_template("never_bought.html", never_bought=never_bought)
 
+@app.route('/author/', methods=['GET'])
+def get_authors():
+    authors = get_all_authors()
+    return render_template("authors.html", authors=authors)
 
 def get_all_authors():
     authors = session.query(Author.Author).all()
