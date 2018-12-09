@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block content %}
+	<form action = "{{ url_for('modify_author', authorId=author.author_id) }}" method ='POST'>
+		<label for='author_first_name'>Author First Name: </label>
+		<input type='text' size = '50' name='author_first_name' value='{{author.first_name}}'/>
+		<label for='author_last_name'>Author Last Name: </label>
+		<input type='text' size = '50' name='author_last_name' value='{{author.last_name}}'/>
+		<br/>
+		<input type='submit' />
+	</form>
+
+{% endblock %}

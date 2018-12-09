@@ -22,30 +22,36 @@ class Book(BASE):
     num_in_stock = Column(INTEGER(unsigned=True), nullable=False)
     pages = Column(INTEGER(unsigned=True), nullable=False)
     release_year = Column(INTEGER(unsigned=True), nullable=True)
-    publisher_id = Column(INTEGER(unsigned=True), ForeignKey('publisher.publisher_id'), nullable=False)
+	#put this back if things break
+    #publisher_id = Column(INTEGER(unsigned=True), ForeignKey('publisher.publisher_id'), nullable=False)
     price = Column(DOUBLE, nullable=False)
 
     publisher = relationship("Publisher", backref=backref('book'))
     authors = relationship("Author", secondary='author_book', viewonly=True)
-    # genres = relationship("Genre", secondary='book_genre', viewonly=True)
+    genres = relationship("Genre", secondary='book_genre', viewonly=True)
 
     __table_args__ = (
         PrimaryKeyConstraint('book_id', name='PRIMARY'),
         ForeignKeyConstraint(['publisher_id'], ['publisher.publisher_id']))
 
-    def __init__(self, title, description, num_in_stock, pages, release_year, author, price):
+    def __init__(self, title, description, num_in_stock, pages, release_year, author, price, genre, publisher):
         self.title = title
         self.description = description
         self.num_in_stock = num_in_stock
         self.pages = pages
         self.release_year = release_year
         self.price = price
+		self.publisher = publisher
         self.addAuthor(author)
+		self.addGenre(genre)
 
     def addAuthor(self, author):
         newEntry = Author.Author_Book(author=author, book=self)
         self.author_book.append(newEntry)
-
+		
+	def addGenre(self, genre):
+		newEntry = Genre.Book_Genre(genre=genre, book=self)
+		self.book_genre.append(newEntry)
 
 
 

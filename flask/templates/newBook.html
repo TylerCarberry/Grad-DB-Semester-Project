@@ -15,26 +15,39 @@
 
 		<br/>
 		<label for='publisher'>Publisher: </label>
-		<input type='text' size = '50' name='publisher' value=''/>
-	<br/>
+		<select name="publisher_id">
+			{% for publisher in publishers %}
+			<option value="{{publisher.publisher_id}}"> {{publisher.name}}</option>
+ 			{% endfor %}
+		</select>
+	
+		<br/>
 		<label for='description'>Description: </label>
 		<input type='textarea' size = '200' name='description' value=''/>
 
 		<br/>
-		<label for='pages'>Pages: </label>
-		<input type='text' size = '20' name='pages' value=''/>
-	<br/>
-		<label for='stock'>In stock: </label>
-		<input type='text' size = '20' name='num_in_stock' value=''/>
-		<br/>
-
-		<br/>
-		<label for='price'>Price: </label>
-		<input type='text' size = '20' name='price' value=''/>
-
 		<label for='release_year'>Release year: </label>
 		<input type='text' size = '20' name='release_year' value=''/>
 		<br/>
+		
+		<br/>
+		<label for='pages'>Pages: </label>
+		<input type='text' size = '20' name='pages' value=''/>
+		
+		<label for='genre'>Genre: </label>
+		<select name="genre_id">
+			{% for genre in genres %}
+			<option value="{{genre.genre_id}}"> {{genre.name}}</option>
+ 			{% endfor %}
+		</select>
+		
+		<br/>
+		<label for='price'>Price: </label>
+		<input type='text' size = '20' name='price' value=''/>
+		
+		<br/>
+		<label for='stock'>In stock: </label>
+		<input type='text' size = '20' name='num_in_stock' value=''/>
 
 		<input type='submit' />
 	</form>

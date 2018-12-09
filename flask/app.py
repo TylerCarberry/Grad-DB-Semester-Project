@@ -108,9 +108,9 @@ def one_book(bookId):
                            current_user_id=current_user_id)
 
 
-@app.route('/book/modify/<int:bookId>/', methods=['GET', 'POST'])
-def modify_book(bookId):
-    book = session.query(Book.Book).filter_by(book_id=bookId).one()
+@app.route('/book/modify/<int:book_id>/', methods=['GET', 'POST'])
+def modify_book(book_id):
+    book = session.query(Book.Book).filter_by(book_id=book_id).one()
     if request.method == 'POST':
         book.title = request.form['title']
         book.description = request.form['description']
@@ -127,17 +127,30 @@ def modify_book(bookId):
                 session.delete(itemToBeDeleted)
             else:
                 session.query(Author.Author_Book).filter_by(author_id=author.author_id, book_id=book.book_id).update({"author_id":current_author_id})
-        # book.release_year = request.form['release_year']
-        # book.price = request.form['price']
+		
+		for genre in book.genres:
+            current_genre_id = request.form['genre_id_'+str(genre.genre_id)]
+            if int(current_author_id) == 0:
+                itemToBeDeleted = session.query(Genre.Book_Genre).filter_by(genre_id=genre.genre_id, book_id=book.book_id).one()
+                session.delete(itemToBeDeleted)
+            else:
+                session.query(Genre.Book_Genre).filter_by(genre_id=genre.genre_id, book_id=book.book_id).update({"genre_id":current_genre_id})
+				
+        book.release_year = request.form['release_year']
+        book.price = request.form['price']
+		book.num_in_stock = request.form['stock']
+		# put this in if things break, also requires change to editBook.html 
         # book.publisher_id = request.form['publisher_id']
-        # session.
+		book.publisher.publisher_id = int(request.form['publisher_id'])
         session.add(book)
         session.commit()
         flash(book.title + "'s information updated")
         return redirect(url_for('all_books'))
     else:
         authors = get_all_authors()
-        return render_template('editBook.html', book=book, allAuthors=authors)
+		genres = get_all_genres()
+		publishers = get_all_publishers()
+        return render_template('editBook.html', book=book, allAuthors=authors, allGenres=genres, allPublishers=publishers)
 
 
 @app.route('/book/delete/<int:book_id>/', methods=['GET', 'POST'])
@@ -157,21 +170,24 @@ def insert_book():
     if request.method == 'POST':
         title = request.form['title']
         description = request.form['description']
-        num_in_stock = request.form['num_in_stock']
+        num_in_stock = request.form['stock']
         pages = request.form['pages']
         release_year = request.form['release_year']
         price = request.form['price']
         author = session.query(Author.Author).filter_by(author_id = request.form['author_id']).one()
-        print (author.author_id)
+		publisher = session.querry(Publisher.Publisher).filter_by(publisher_id = request.form['publisher_id']).one()
+		genre = session.querry(Genre.Genre).filter_by(genre_id = request.form['genre_id']).one()
         newBook = Book.Book(title=title, description=description, num_in_stock=num_in_stock, pages=pages,
-                            release_year=release_year, author=author, price=price)
+                            release_year=release_year, author=author, price=price,)
         session.add(newBook)
         session.commit()
         flash("New book " + title + " created")
         return redirect(url_for('all_books'))
     else:
         authors = get_all_authors()
-        return render_template('newBook.html', authors=authors)
+		genres = get_all_genres()
+		publishers = get_all_publishers()
+        return render_template('newBook.html', authors=authors, genres=genres, publishers=publishers)
 
 
 @app.route('/publisher/')
@@ -181,9 +197,9 @@ def all_publishers():
                            publishers=publishers)
 
 
-@app.route('/publisher/<int:publisherId>/')
-def one_publisher(publisherId):
-    publisher = session.query(Publisher.Publisher).filter_by(publisher_id=publisherId).one()
+@app.route('/publisher/<int:publisher_id>/')
+def one_publisher(publisher_id):
+    publisher = session.query(Publisher.Publisher).filter_by(publisher_id=publisher_id).one()
     return render_template('publisher.html',
                            publisher=publisher)
 
@@ -200,9 +216,9 @@ def new_publisher():
         return render_template('newPublisher.html')
 
 
-@app.route('/publisher/modify/<int:publisherId>', methods=['GET','POST'])
-def modify_publisher(publisherId):
-    publisher = session.query(Publisher.Publisher).filter_by(publisher_id=publisherId).one()
+@app.route('/publisher/modify/<int:publisher_id>', methods=['GET','POST'])
+def modify_publisher(publisher_id):
+    publisher = session.query(Publisher.Publisher).filter_by(publisher_id=publisher_id).one()
     if request.method == 'POST':
         publisher.name=request.form['publisher_name']
         session.add(publisher)
@@ -289,11 +305,57 @@ def wish_list_never_bought():
 def get_authors():
     authors = get_all_authors()
     return render_template("authors.html", authors=authors)
+	
+@app.route('/author/<int:author_id>/')
+def one_author(author_id):
+    author = session.query(Author.Author).filter_by(author_id=author_id).one()
+    return render_template('publisher.html',
+                           author=author)
 
-def get_all_authors():
-    authors = session.query(Author.Author).all()
-    return authors
+	
+@app.route('/add_author/',methods=['GET','POST'])
+def add_author():
+	if request.method == 'POST':
+        first_name=request.form['author_first_name']
+		last_name=request.form['author_last_name']
+        author = Author.Author(first_name=first_name,last_name=last_name)
+        session.add(author)
+        session.commit()
+        flash("New author " + first_name + " " + last_name + " created")
+        return redirect(url_for('get_authors'))
+    else:
+        return render_template('newAuthor.html')
 
+
+@app.route('/author/modify/<int:author_id>', methods=['GET','POST'])
+def modify_author(author_id):
+    author = session.query(Author.Author).filter_by(author_id=author_id).one()
+    if request.method == 'POST':
+        author.first_name=request.form['author_first_name']
+        author.last_name=request.form['author_last_name']
+        session.add(author)
+        session.commit()
+        flash("Author " + author.first_name + " " + author.last_name + " edited")
+        return redirect(url_for('get_authors'))
+    else:
+        return render_template('editAuthor.html',
+                               author=author)
+
+							   
+@app.route('/author/delete/<int:author_id>/', methods=['GET', 'POST'])
+def delete_author(author_id):
+    author = session.query(Author.Author).filter_by(author_id=author_id).one()
+    if request.method == 'POST':
+        session.delete(author)
+        session.commit()
+        flash(author.first_name+ " " + author.last_name + " deleted")
+        return redirect(url_for('get_authors'))
+    else:
+        if not author.book:
+            return render_template('deleteAuthor.html', author=author)
+        else:
+            return render_template('error.html',
+                                   cause='Can\'t delete an author with books')
 
 @app.route('/cart/', methods=['GET'])
 def get_cart():
@@ -332,7 +394,18 @@ def checkout():
 
     return "Order successful! Orders bought today will ship on " + day["day_of_week"]
 
+##helper functions
+def get_all_authors():
+    authors = session.query(Author.Author).all()
+    return authors
 
+def get_all_genres():
+    genres = session.query(Genre.Genre).all()
+    return genres
+
+def get_all_publishers():
+    publisher = session.query(Publisher.Publisher).all()
+    return publisher
 
 if __name__ == '__main__':
     app.secret_key = os.urandom(24)

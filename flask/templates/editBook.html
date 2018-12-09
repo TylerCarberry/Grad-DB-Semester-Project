@@ -26,17 +26,54 @@
 			{% endfor %}
 		</select>
 		<br/>
-		<label for='publisher'>Publisher: </label>
-		<input type='text' size = '50' name='publisher' value='{{book.publisher.name}}'/>
-
+		
+		<label for='publisher_id'>Publisher: </label>
+		<select name="publisher_id_{{book.publisher.publisher_id}}">
+				{% for currentPublisher in allPublishers %}
+					{% if currentPublisher.publisher_id == book.publisher.publisher_id %}
+						<option value="{{currentPublisher.publisher_id}}" selected> {{currentPublisher.name}}</option>
+					{% else %}
+						<option value="{{currentPublisher.publisher_id}}" > {{currentPublisher.name}}</option>
+					{% endif %}
+				{% endfor %}
+			</select>
+		
 		<br/>
 		<label for='description'>Description: </label>
 		<input type='textarea' size='200' name='description' value='{{book.description}}'/>
 
 		<br/>
+		<label for='release_year'>Release Year: </label>
+		<input type='text' size='20' name='release_year' value='{{book.release_year}}'/>
+		
+		<br/>
 		<label for='pages'>Pages: </label>
 		<input type='text' size='20' name='pages' value='{{book.pages}}'/>
 
+		<label for='genres'>Genre(s): </label>
+		{% for genre in book.genres %}
+			<select name="genre_id_{{genre.genre_id}}">
+				<option value="0" >Delete genre</option>
+				{% for currentGenre in allGenres %}
+					{% if currentGenre.genre_id == genre.genre_id %}
+						<option value="{{currentGenre.genre_id}}" selected> {{currentGenre.name}}</option>
+					{% else %}
+						<option value="{{currentGenre.genre_id}}" > {{currentGenre.name}}</option>
+					{% endif %}
+				{% endfor %}
+			</select>
+		{% endfor %}
+		<select name="new_genre">
+			<option value="0" selected>Add new genre</option>
+			{% for currentGenre in allGenres %}
+				<option value="{{currentGenre.genre_id}}" > {{currentGenre.name}}</option>
+			{% endfor %}
+		</select>
+
+		<br/>
+		<label for='price'>Price: </label>
+		<input type='text' size='20' name='price' value='{{book.price}}'/>
+		
 		<br/>
 		<label for='stock'>In stock: </label>
 		<input type='text' size='20' name='stock' value='{{book.num_in_stock}}'/>

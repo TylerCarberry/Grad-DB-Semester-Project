@@ -17,11 +17,17 @@ Current user logged in {{user}}
 	Description: {{book.description}}
 <br/>
 	Pages: {{book.pages}}
+	
+	Genres: 
 	<ul>
 		{% for genre in book_genre %}
 			<li>{{genre.name}} </li>
 		{% endfor %}
 	</ul>
+	
+	Release Year: {{book.release_year}}
+	
+	Price: {{book.price}}
 	
 	In stock: {{book.num_in_stock}}
 <p></p>
