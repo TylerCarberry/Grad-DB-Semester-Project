@@ -43,7 +43,7 @@ def home():
 @app.route('/shop')
 def shop():
     global current
-    current = 'admin'
+    current = 'Tyler'
     return "<h1>Shop</h1>" \
            "<p><a href='/categories'>Shop By Category</a></p>" \
            "<p><a href='/book'>View All Books</a></p>" \
@@ -55,7 +55,7 @@ def shop():
 @app.route('/admin/')
 def admin():
     global current
-    current = 'Tyler'
+    current = 'admin'
     return "<h1>Welcome to Rowan Bookstore - Admin Page</h1>" \
            "<p><a href='/low_inventory'> Inventory that has fallen below the minimum stock level</a></p>" \
            "<p><a href='/when_ship'> When will orders ship?</a></p>" \
@@ -113,6 +113,18 @@ def modify_book(bookId):
         book.title = request.form['title']
         book.description = request.form['description']
         book.pages = request.form['pages']
+        new_author_id = int(request.form['new_author'])
+        if new_author_id != 0:
+            author = session.query(Author.Author).filter_by(author_id=new_author_id).one()
+            book.addAuthor(author)
+
+        for author in book.authors:
+            current_author_id = request.form['author_id_'+str(author.author_id)]
+            if int(current_author_id) == 0:
+                itemToBeDeleted = session.query(Author.Author_Book).filter_by(author_id=author.author_id, book_id=book.book_id).one()
+                session.delete(itemToBeDeleted)
+            else:
+                session.query(Author.Author_Book).filter_by(author_id=author.author_id, book_id=book.book_id).update({"author_id":current_author_id})
         # book.release_year = request.form['release_year']
         # book.price = request.form['price']
         # book.publisher_id = request.form['publisher_id']
@@ -122,7 +134,8 @@ def modify_book(bookId):
         flash(book.title + "'s information updated")
         return redirect(url_for('all_books'))
     else:
-        return render_template('editBook.html', book=book)
+        authors = get_all_authors()
+        return render_template('editBook.html', book=book, allAuthors=authors)
 
 
 @app.route('/book/delete/<int:book_id>/', methods=['GET', 'POST'])
@@ -155,7 +168,7 @@ def insert_book():
         flash("New book " + title + " created")
         return redirect(url_for('all_books'))
     else:
-        authors = session.query(Author.Author).all()
+        authors = get_all_authors()
         return render_template('newBook.html', authors=authors)
 
 
@@ -246,6 +259,10 @@ def wish_list_never_bought():
     never_bought = session.execute("SELECT * FROM wish_list_never_purchased").fetchall()
     return render_template("never_bought.html", never_bought=never_bought)
 
+
+def get_all_authors():
+    authors = session.query(Author.Author).all()
+    return authors
 
 if __name__ == '__main__':
     app.secret_key = os.urandom(24)
