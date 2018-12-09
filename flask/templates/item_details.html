@@ -4,6 +4,9 @@
 <h2>{{item.name}}</h2>
 <p>{{item.description}}</p>
 <p>{{'${:,.2f}'.format(item.cost)}}</p>
+<br/>
+<p>Rating: {{"{:.2f}".format(item.rating)}}</p>
+<p>Smart Rating™️: {{"{:.2f}".format(item.smart_rating)}}</p>
 
 
 <a href = '../../addToWishList/{{item_id}}/'>Add to wish list</a>

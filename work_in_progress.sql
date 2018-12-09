@@ -250,20 +250,19 @@ SELECT * FROM rowan_items;
 
 
 # All items from sakila, northwind, adventure works
-CREATE OR REPLACE VIEW all_items (id, name, description, category, cost, store) AS
-  SELECT concat('northwind_', id), name, description, category, cost, 'northwind' FROM northwind_items
+CREATE OR REPLACE VIEW all_items (id, name, description, category, cost) AS
+  SELECT concat('northwind_', id), name, description, category, cost FROM northwind_items
   UNION
-  SELECT concat('sakila_', id), name, description, category, cost, 'sakila' FROM sakila_items
+  SELECT concat('sakila_', id), name, description, category, cost FROM sakila_items
   UNION
-  SELECT concat('adventure_', id), name, description, category, cost, 'adventureworks' FROM adventure_items
+  SELECT concat('adventure_', id), name, description, category, cost FROM adventure_items
   UNION
-  SELECT concat('rowan_', id), name, description, category, cost, 'rowan' FROM rowan_items
+  SELECT concat('rowan_', id), name, description, category, cost FROM rowan_items
 ;
 
-SELECT * FROM all_items;
 
 
-SELECT * FROM all_items ORDER BY category;
+
 
 
 # Run this if you are getting errors about sweeden charset
@@ -297,6 +296,8 @@ SELECT * from all_categories;
 # 9b
 SELECT * from all_items;
 
+
+
 # 10. List of all your products whose inventory has fallen below the minimum stock level
 CREATE OR REPLACE VIEW low_inventory AS
 SELECT * FROM carberryt9.book WHERE num_in_stock <
@@ -328,8 +329,28 @@ CREATE OR REPLACE VIEW when_will_order_ship (day_of_week) AS
 SELECT DAYNAME(CONCAT('2018-08-2', (SELECT if(WEEKDAY(now()) < 5, (weekday(now()) + 4) % 5, 3))));
 
 
-# A report showing wished for products that were never purchased by the customers who wished for them
-# SELECT * from all_categories c JOIN all_items a on c.name = a.category;
+
+# 17. Ability to view the ratings of products in two ways
+# The average rating based on all rating activity
+CREATE OR REPLACE VIEW dumb_rating AS
+SELECT i.id, avg(item_rating) rating FROM all_items i JOIN rating r ON i.id = r.item_id GROUP BY i.id, i.name;
+
+# A more intelligent rating that uses an algorithm to weight some customer’s ratings higher than other
+# Items that have been purchased are weighted twice as much
+CREATE OR REPLACE VIEW items_smart_rating AS
+SELECT r.item_id, sum(if(t.transaction_time is null, r.item_rating, r.item_rating * 2))/sum(if(t.transaction_time is null, 1, 2)) smart_rating FROM rating r
+  LEFT JOIN transaction t ON r.item_id = t.item_id AND r.customer_id = t.customer_id
+  GROUP BY r.item_id;
+
+CREATE OR REPLACE VIEW all_items_with_rating (id, name, description, category, cost, rating, smart_rating) AS
+SELECT i.*, d.rating rating, s.smart_rating smart_rating from all_items i
+  LEFT JOIN items_smart_rating s on s.item_id = i.id
+  LEFT JOIN dumb_rating d on d.id = i.id
+;
+
+SELECT * FROM all_items_with_rating;
+
+
 
 
 # 18. A report showing the most highly wished for products in every category
@@ -370,3 +391,4 @@ WHERE w.item_id NOT IN
        WHERE c.customer_id = w.customer_id);
 
 SELECT * FROM wish_list_never_purchased;
+

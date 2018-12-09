@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block h1 %}Publishers{% endblock %}
+
+{% block content %}
+	{% for publisher in publishers %}
+		<h2><a href='/publisher/{{publisher.publisher_id}}'>{{publisher.name}}</a></h2>
+	{% endfor %}
+
+	<br/>
+	<a href = '../publisher/new/'>Add new publisher</a>
+	
+{% endblock %}
+	

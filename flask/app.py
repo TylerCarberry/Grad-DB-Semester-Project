@@ -36,13 +36,19 @@ session = Session()
 current = ''
 
 @app.route('/')
-def hello_world():
-    return "<h1>Welcome to Rowan Bookstore</h1>" \
-           "<p><a href='/categories'> Shop</a></p>" \
-           "<p><a href='/admin'> Admin</a></p>" \
-           "<p><a href='/book'> View All Books</a></p>" \
-           "<p><a href='/author'> View All Authors</a></p>" \
-           "<p><a href='/publisher'> View All Publishers</a></p>"
+def home():
+    return render_template("home.html")
+
+
+@app.route('/shop')
+def shop():
+    global current
+    current = 'Tyler'
+    return "<h1>Shop</h1>" \
+           "<p><a href='/categories'>Shop By Category</a></p>" \
+           "<p><a href='/book'>View All Books</a></p>" \
+           "<p><a href='/author'>View All Authors</a></p>" \
+           "<p><a href='/publisher'>View All Publishers</a></p>"
 
 
 # TODO: Make this a template
@@ -168,28 +174,41 @@ def insert_book():
 
 @app.route('/publisher/')
 def all_publishers():
-    print("Publishers:\n")
     publishers = session.query(Publisher.Publisher).all()
-    print(publishers)
-    html = '<h1> Publishers </h1>'
-    for publisher in publishers:
-        html += "<p><a href='/publisher/" + str(
-            publisher.publisher_id) + "'> " + publisher.name + "</a></p>"
-    return html
+    return render_template('publisherlist.html',
+                           publishers=publishers)
 
 
 @app.route('/publisher/<int:publisherId>/')
 def one_publisher(publisherId):
-    print("Publisher:\n")
     publisher = session.query(Publisher.Publisher).filter_by(publisher_id=publisherId).one()
-    print(publisher)
-    html = '<h1>' + publisher.name + '</h1>'
-    html += "<h2> Books: </h2>"
+    return render_template('publisher.html',
+                           publisher=publisher)
 
-    for book in publisher.books:
-        html += "<p><a href='/book/" + str(book.book_id) + "'> " + book.title + "</a></p>"
-    return html
+@app.route('/publisher/new/', methods=['GET','POST'])
+def new_publisher():
+    if request.method == 'POST':
+        name=request.form['publisher_name']
+        publisher = Publisher.Publisher(name)
+        session.add(publisher)
+        session.commit()
+        flash("New publisher " + name + " created")
+        return redirect(url_for('all_publishers'))
+    else:
+        return render_template('newPublisher.html')
 
+@app.route('/publisher/modify/<int:publisherId>', methods=['GET','POST'])
+def modify_publisher(publisherId):
+    publisher = session.query(Publisher.Publisher).filter_by(publisher_id=publisherId).one()
+    if request.method == 'POST':
+        publisher.name=request.form['publisher_name']
+        session.add(publisher)
+        session.commit()
+        flash("Publisher " + publisher.name + " edited")
+        return redirect(url_for('all_publishers'))
+    else:
+        return render_template('editPublisher.html',
+                               publisher=publisher)
 
 @app.route('/categories/', methods=['GET'])
 def get_categories():
@@ -225,7 +244,7 @@ def get_all_items():
 
 @app.route('/item/<string:item_id>/', methods=['GET'])
 def get_specific_item(item_id):
-    the_item = session.execute('SELECT * FROM all_items WHERE id="' + item_id + '"').fetchone()
+    the_item = session.execute('SELECT * FROM all_items_with_rating WHERE id="' + item_id + '"').fetchone()
     return render_template("item_details.html", item=the_item)
 
 
