@@ -15,7 +15,14 @@
 {% endif %}
 
 <a href = '../../addToWishList/{{item_id}}/'>Add to wish list</a>
-<a href = '../../addToCart/{{item_id}}/'>Add to cart</a>
+
+
+<form action="/add_to_cart/{{item.id}}" method="post">
+  Quantity:
+  <input type="number" name="quantity" min="1" max="10" value="1">
+  <input type="submit" value="Add to cart">
+</form>
+
 
 {% endblock %}
 	

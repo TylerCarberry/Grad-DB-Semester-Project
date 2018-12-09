@@ -12,7 +12,7 @@ from sqlalchemy.orm import sessionmaker
 
 # use a constant here, so that the same bases is used for all tables
 # Now save this schema information to the database
-from EntitiesAsClasses import Author, Customer, Book, Publisher, Rating, Restock, Transaction
+from EntitiesAsClasses import Author, Customer, Book, Publisher, Rating, Restock, Transaction, Cart
 from sqlalchemy.ext.declarative import declarative_base
 
 BASE = declarative_base()
@@ -33,7 +33,7 @@ Session = sessionmaker(bind=connection)
 # create a session for our use from our generated Session class.
 session = Session()
 
-current = ''
+current_user_id = 0
 
 @app.route('/')
 def home():
@@ -42,21 +42,22 @@ def home():
 
 @app.route('/shop')
 def shop():
-    global current
-    current = 'Tyler'
+    global current_user_id
+    current_user_id = 1
     return "<h1>Shop</h1>" \
            "<p><a href='/recommended'>Recommended for you</a></p>" \
            "<p><a href='/categories'>Shop By Category</a></p>" \
            "<p><a href='/book'>View All Books</a></p>" \
            "<p><a href='/author'>View All Authors</a></p>" \
-           "<p><a href='/publisher'>View All Publishers</a></p>"
+           "<p><a href='/publisher'>View All Publishers</a></p>" \
+           "<p><a href='/cart'>View Your Cart</a></p>"
 
 
 # TODO: Make this a template
 @app.route('/admin/')
 def admin():
-    global current
-    current = 'admin'
+    global current_user_id
+    current_user_id = 0
     return "<h1>Welcome to Rowan Bookstore - Admin Page</h1>" \
            "<p><a href='/low_inventory'> Inventory that has fallen below the minimum stock level</a></p>" \
            "<p><a href='/when_ship'> When will orders ship?</a></p>" \
@@ -100,16 +101,10 @@ def all_books():
 @app.route('/book/<int:bookId>/')
 def one_book(bookId):
     book = session.query(Book.Book).filter_by(book_id=bookId).one()
-    if current == 'admin':
-        return render_template('book.html',
+    return render_template('book.html',
                            book=book,
                            title=book.title,
-                           admin=current)
-    else:
-        return render_template('book.html',
-                           book=book,
-                           title=book.title,
-                           user=current)
+                           current_user_id=current_user_id)
 
 
 @app.route('/book/modify/<int:bookId>/', methods=['GET', 'POST'])
@@ -293,6 +288,30 @@ def wish_list_never_bought():
 def get_all_authors():
     authors = session.query(Author.Author).all()
     return authors
+
+
+@app.route('/cart/', methods=['GET'])
+def get_cart():
+    cart = session.query(Cart.Cart).filter_by(customer_id=1).all()
+    return render_template("cart.html", cart=cart)
+
+
+
+@app.route('/add_to_cart/<string:item_id>', methods=['POST'])
+def add_to_cart(item_id):
+    quantity = request.form['quantity']
+
+    try:
+        cart_item = session.query(Cart.Cart).filter_by(customer_id=current_user_id, item_id=item_id).one()
+        cart_item.quantity += quantity
+        session.update(cart_item)
+    except:
+        cart_item = Cart.Cart(item_id=item_id, customer_id=current_user_id, quantity=quantity)
+        session.add(cart_item)
+    session.commit()
+    return "Successfully added to cart"
+
+
 
 if __name__ == '__main__':
     app.secret_key = os.urandom(24)

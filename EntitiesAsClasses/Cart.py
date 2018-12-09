@@ -9,19 +9,17 @@ from sqlalchemy.sql.schema import ForeignKeyConstraint
 class Cart(BASE):
     __tablename__ = 'cart'
 
-    item_id = Column(INTEGER, nullable=False)
+    item_id = Column(String(100), nullable=False)
     customer_id = Column(INTEGER, nullable=False)
-    seller = Column(String(100), nullable=False)
     quantity = Column(INTEGER(unsigned=True), nullable=False)
 
     customer = relationship("Customer", backref=backref('cart'))
 
     __table_args__ = (
-        PrimaryKeyConstraint('item_id', 'customer_id', 'seller', name='PRIMARY'),
+        PrimaryKeyConstraint('item_id', 'customer_id', name='PRIMARY'),
         ForeignKeyConstraint(['customer_id'],['customer.customer_id']))
 
-    def __init__(self, item_id, customer_id, seller, quantity):
+    def __init__(self, item_id, customer_id, quantity):
         self.item_id = item_id
         self.customer_id = customer_id
-        self.seller = seller
         self.quantity = quantity
