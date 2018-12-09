@@ -173,33 +173,36 @@ CREATE OR REPLACE VIEW northwind_customers(first_name, last_name, email, address
 SELECT c.first_name, c.last_name, ifnull(c.email_address, 'unknown email'), concat(c.address, ' ', c.city, ' ', c.state_province, ' ', c.zip_postal_code, ' ', c.country_region) from northwind.customers c
 ;
 
-SELECT * FROM northwind_customers;
+EXPLAIN SELECT * FROM northwind_customers;
 
 # List of Rowan Books customers with first name, last name, email, and address
 CREATE OR REPLACE VIEW rowan_customers(first_name, last_name, email, address) AS
-SELECT c.first_name, c.last_name, ifnull(c.email, 'unknown email'), c.address
-       FROM carberryt9.customer c
+SELECT c.first_name, c.last_name, ifnull(c.email, 'unknown email'), c.address FROM carberryt9.customer c
 ;
 
-SELECT * FROM rowan_customers;
+EXPLAIN SELECT * FROM rowan_customers;
 
 show tables;
 
 
 # All customers from sakila, northwind, adventure works
-# TODO: Add ours also
 CREATE OR REPLACE VIEW all_customers (first_name, last_name, email, address, store) AS
   SELECT first_name, last_name, email, address, 'northwind' FROM northwind_customers
-  UNION
+  UNION ALL
   SELECT first_name, last_name, email, address, 'sakila' FROM sakila_customers
-  UNION
+  UNION ALL
   SELECT first_name, last_name, email, address, 'adventureworks' FROM adventure_customers
-  UNION
+  UNION ALL
   SELECT first_name, last_name, email, address, 'rowan_books' FROM rowan_customers
 ;
 
-SELECT * FROM all_customers;
 
+
+SELECT count(*) FROM adventure_customers;
+
+SELECT count(*) FROM all_customers;
+
+EXPLAIN SELECT * FROM all_customers;
 
 # Products
 # The view for northwind products
@@ -327,6 +330,31 @@ SELECT * from all_items a1 WHERE
 # https://stackoverflow.com/a/32908851
 CREATE OR REPLACE VIEW when_will_order_ship (day_of_week) AS
 SELECT DAYNAME(CONCAT('2018-08-2', (SELECT if(WEEKDAY(now()) < 5, (weekday(now()) + 4) % 5, 3))));
+
+
+# An algorithm (manifested as a query) to suggest additional products that a customer might be interested in based
+# on their order history
+CREATE OR REPLACE VIEW recommended_for_you(id, name) AS
+SELECT i.id, i.name FROM all_items i WHERE i.id IN (SELECT t3.item_id
+# Get everything that those people bought
+FROM transaction t3
+WHERE t3.customer_id IN (
+  # Get everybody else who also bought the same item
+  SELECT DISTINCT t2.customer_id
+  FROM transaction t2
+  WHERE t2.item_id IN (
+    # Get everything that you bought
+    SELECT t.item_id FROM transaction t WHERE t.customer_id = 1 and t.customer_id != t2.customer_id
+    # Get everything from your wishlist
+    UNION SELECT w.item_id FROM wish_list w WHERE w.customer_id = 1
+    ))
+  AND t3.item_id
+        # Exclude items that you have already bought
+        NOT IN (SELECT t.item_id FROM transaction t WHERE t.customer_id = 1)
+GROUP BY t3.item_id
+ORDER BY sum(t3.quantity) DESC) LIMIT 10;
+
+
 
 
 

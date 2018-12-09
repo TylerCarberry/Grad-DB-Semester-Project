@@ -45,6 +45,7 @@ def shop():
     global current
     current = 'Tyler'
     return "<h1>Shop</h1>" \
+           "<p><a href='/recommended'>Recommended for you</a></p>" \
            "<p><a href='/categories'>Shop By Category</a></p>" \
            "<p><a href='/book'>View All Books</a></p>" \
            "<p><a href='/author'>View All Authors</a></p>" \
@@ -60,7 +61,12 @@ def admin():
            "<p><a href='/low_inventory'> Inventory that has fallen below the minimum stock level</a></p>" \
            "<p><a href='/when_ship'> When will orders ship?</a></p>" \
            "<p><a href='/never_bought'> Wish list but never bought</a></p>" \
-           "<p><a href='/not_active_customers'> Not active customers</a></p>"
+           "<p><a href='/not_active_customers'> Not active customers</a></p>" \
+           "<br/>" \
+           "<p><a href='/book'>View All Books</a></p>" \
+           "<p><a href='/author'>View All Authors</a></p>" \
+           "<p><a href='/publisher'>View All Publishers</a></p>"
+
 
 
 @app.route('/low_inventory/')
@@ -229,6 +235,13 @@ def get_specials():
     specials = session.execute(
         'SELECT * FROM specials ORDER BY name').fetchall()
     return render_template("items.html", items=specials)
+
+
+@app.route('/recommended/', methods=['GET'])
+def get_recommended():
+    recommended = session.execute(
+        'SELECT * FROM recommended_for_you ORDER BY name').fetchall()
+    return render_template("items.html", items=recommended)
 
 
 @app.route('/item/', methods=['GET'])
