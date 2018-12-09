@@ -203,6 +203,7 @@ def new_publisher():
     else:
         return render_template('newPublisher.html')
 
+
 @app.route('/publisher/modify/<int:publisherId>', methods=['GET','POST'])
 def modify_publisher(publisherId):
     publisher = session.query(Publisher.Publisher).filter_by(publisher_id=publisherId).one()
@@ -215,6 +216,22 @@ def modify_publisher(publisherId):
     else:
         return render_template('editPublisher.html',
                                publisher=publisher)
+
+
+@app.route('/publisher/delete/<int:publisher_id>/', methods=['GET', 'POST'])
+def delete_publisher(publisher_id):
+    publisher = session.query(Publisher.Publisher).filter_by(publisher_id=publisher_id).one()
+    if request.method == 'POST':
+        session.delete(publisher)
+        session.commit()
+        flash(publisher.name + " deleted")
+        return redirect(url_for('all_publishers'))
+    else:
+        if not publisher.book:
+            return render_template('deletePublisher.html', publisher=publisher)
+        else:
+            return render_template('error.html',
+                                   cause='Can\'t delete a publisher with books')
 
 @app.route('/categories/', methods=['GET'])
 def get_categories():
