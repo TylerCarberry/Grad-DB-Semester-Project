@@ -1,5 +1,6 @@
 import os
 import urllib
+import time
 
 from flask import Flask, render_template, url_for, request, flash, redirect
 
@@ -40,7 +41,7 @@ def home():
     return render_template("home.html")
 
 
-@app.route('/shop')
+@app.route('/shop/')
 def shop():
     global current_user_id
     current_user_id = 1
@@ -314,6 +315,22 @@ def add_to_cart(item_id):
         session.add(cart_item)
     session.commit()
     return "Successfully added to cart"
+
+
+@app.route('/checkout/', methods=['POST'])
+def checkout():
+    day = session.execute(
+        'SELECT day_of_week FROM when_will_order_ship').fetchone()
+
+    current_user_id = 1
+    cart = session.query(Cart.Cart).filter_by(customer_id=current_user_id).all()
+
+    for cart_item in cart:
+        session.add(Transaction.Transaction(item_id=cart_item.item_id, quantity=cart_item.quantity, customer_id=current_user_id))
+        session.delete(cart_item)
+    session.commit()
+
+    return "Order successful! Orders bought today will ship on " + day["day_of_week"]
 
 
 
