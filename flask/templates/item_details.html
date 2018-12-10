@@ -14,8 +14,21 @@
 <p>No reviews yet</p>
 {% endif %}
 
-<a href = '../../addToWishList/{{item_id}}/'>Add to wish list</a>
+<form action="/rate_item/{{item.id}}" method="post">
+  Num Stars:
+  <input type="number" name="stars" min="1" max="5" value="{{my_rating}}">
+  <input type="submit" value="Rate">
+</form>
 
+{% if on_wishlist %}
+<form action="/remove_from_wishlist/{{item.id}}" method="post">
+  <input type="submit" value="Remove from wishlist">
+</form>
+{% else %}
+<form action="/add_to_wishlist/{{item.id}}" method="post">
+  <input type="submit" value="Add to wishlist">
+</form>
+{% endif %}
 
 <form action="/add_to_cart/{{item.id}}" method="post">
   Quantity:

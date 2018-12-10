@@ -13,14 +13,15 @@ from EntitiesAsClasses.Base import BASE
 
 class Rating(BASE):
     __tablename__ = 'rating'
-    product_rating = Column(Enum('1','2','3','4','5', name='product_ratings'))
-    product_id = Column(INTEGER(unsigned=True),nullable=False)
+    item_rating = Column(INTEGER(unsigned=True),nullable=False)
+    item_id = Column(INTEGER(unsigned=True),nullable=False)
     customer_id = Column(INTEGER(unsigned=True),nullable=False)
 
     __table_args__ = (
-        PrimaryKeyConstraint('product_id','customer_id',name='PRIMARY'), )
+        PrimaryKeyConstraint('item_id','customer_id',name='PRIMARY'), )
 
-    def __init__(self, product_id,customer_id):
-        self.product_id = product_id
+    def __init__(self, item_id, customer_id, item_rating):
+        self.item_id = item_id
         self.customer_id = customer_id
+        self.item_rating = item_rating
 

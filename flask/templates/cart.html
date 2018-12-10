@@ -5,7 +5,11 @@
 
 	<ul>
 		{% for item in cart %}
-			<li><a href = '/item/{{item.item_id}}/'>{{item.item_id.capitalize()}}</a></li>
+			<li><a href = '/item/{{item.id}}/'>{{item.name.capitalize()}}</a> {{'${:,.2f}'.format(item.cost)}} each --- Quantity: {{item.quantity}}</li>
+		<form action="/remove_from_cart/{{item.id}}" method="post">
+  			<input type="submit" value="Remove From Cart">
+		</form>
+
 		{% endfor %}
 
 

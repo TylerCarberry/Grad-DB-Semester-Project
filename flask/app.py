@@ -13,7 +13,7 @@ from sqlalchemy.orm import sessionmaker
 
 # use a constant here, so that the same bases is used for all tables
 # Now save this schema information to the database
-from EntitiesAsClasses import Author, Customer, Book, Publisher, Rating, Restock, Transaction, Cart, Genre
+from EntitiesAsClasses import Author, Customer, Book, Publisher, Rating, Restock, Transaction, Cart, Genre, WishList
 from sqlalchemy.ext.declarative import declarative_base
 
 BASE = declarative_base()
@@ -48,6 +48,7 @@ def shop():
     return "<h1>Shop</h1>" \
            "<p><a href='/recommended'>Recommended for you</a></p>" \
            "<p><a href='/categories'>Shop By Category</a></p>" \
+           "<p><a href='/wishlist'>View Wishlist</a></p>" \
            "<p><a href='/cart'>View Your Cart</a></p>"
 
 
@@ -283,8 +284,11 @@ def get_all_items():
 
 @app.route('/item/<string:item_id>/', methods=['GET'])
 def get_specific_item(item_id):
+    on_wishlist = session.query(WishList.WishList).filter_by(customer_id=current_user_id, item_id=item_id).scalar()
+    my_rating = session.query(Rating.Rating).filter_by(customer_id=current_user_id, item_id=item_id).scalar()
+    num_stars = my_rating.item_rating if my_rating is not None else None
     the_item = session.execute('SELECT * FROM all_items_with_rating WHERE id="' + item_id + '"').fetchone()
-    return render_template("item_details.html", item=the_item)
+    return render_template("item_details.html", item=the_item, on_wishlist=(on_wishlist != None), my_rating=num_stars)
 
 
 @app.route('/customer/', methods=['GET'])
@@ -356,7 +360,9 @@ def delete_author(author_id):
 
 @app.route('/cart/', methods=['GET'])
 def get_cart():
-    cart = session.query(Cart.Cart).filter_by(customer_id=1).all()
+    cart = session.execute(
+        'SELECT i.*, c.quantity FROM cart c JOIN all_items i on i.id = c.item_id WHERE c.customer_id = ' + str(
+            current_user_id)).fetchall()
     return render_template("cart.html", cart=cart)
 
 
@@ -367,13 +373,60 @@ def add_to_cart(item_id):
 
     try:
         cart_item = session.query(Cart.Cart).filter_by(customer_id=current_user_id, item_id=item_id).one()
-        cart_item.quantity += quantity
-        session.update(cart_item)
-    except:
+        cart_item.quantity += int(quantity)
+        session.add(cart_item)
+    except Exception as e:
         cart_item = Cart.Cart(item_id=item_id, customer_id=current_user_id, quantity=quantity)
         session.add(cart_item)
     session.commit()
-    return "Successfully added to cart"
+    return redirect(url_for('get_cart'))
+
+
+@app.route('/remove_from_cart/<string:item_id>', methods=['POST'])
+def remove_from_cart(item_id):
+    try:
+        cart_item = session.query(Cart.Cart).filter_by(customer_id=current_user_id, item_id=item_id).one()
+        session.delete(cart_item)
+        session.commit()
+        return redirect(url_for('get_cart'))
+    except:
+        # Already deleted, don't do anything
+        pass
+        return redirect(url_for('get_cart'))
+
+
+@app.route('/wishlist/', methods=['GET'])
+def get_wishlist():
+    current_user_id = 1
+    all_items = session.execute(
+        'SELECT i.* FROM wish_list w JOIN all_items i on i.id = w.item_id WHERE w.customer_id = ' + str(current_user_id)).fetchall()
+    return render_template("items.html", items=all_items, subtitle = "Wishlist")
+
+
+@app.route('/add_to_wishlist/<string:item_id>', methods=['POST'])
+def add_to_wishlist(item_id):
+    try:
+        wish_list_item = session.query(WishList.WishList).filter_by(customer_id=current_user_id, item_id=item_id).one()
+        # Already on the wishlist, don't do anything
+        return redirect(url_for('get_wishlist'))
+    except:
+        wish_list_item = WishList.WishList(item_id=item_id, customer_id=current_user_id)
+        session.add(wish_list_item)
+        session.commit()
+        return redirect(url_for('get_wishlist'))
+
+
+@app.route('/remove_from_wishlist/<string:item_id>', methods=['POST'])
+def remove_from_wishlist(item_id):
+    try:
+        wish_list_item = session.query(WishList.WishList).filter_by(customer_id=current_user_id, item_id=item_id).one()
+        session.delete(wish_list_item)
+        session.commit()
+        return redirect(url_for('get_wishlist'))
+    except:
+        # Already deleted, don't do anything
+        pass
+        return redirect(url_for('get_wishlist'))
 
 
 @app.route('/checkout/', methods=['POST'])
@@ -389,7 +442,25 @@ def checkout():
         session.delete(cart_item)
     session.commit()
 
-    return "Order successful! Orders bought today will ship on " + day["day_of_week"]
+    return "Order successful! Orders bought today will ship on " + day["day_of_week"]\
+           + "<br/> <a href = '/'>Buy more stuff!</a>"
+
+
+
+@app.route('/rate_item/<string:item_id>', methods=['POST'])
+def rate_item(item_id):
+    stars = request.form['stars']
+
+    try:
+        rating = session.query(Rating.Rating).filter_by(customer_id=current_user_id, item_id=item_id).one()
+        rating.item_rating = int(stars)
+    except Exception as e:
+        rating = Rating.Rating(item_id=item_id, customer_id=current_user_id, item_rating=str(stars))
+    session.add(rating)
+    session.commit()
+    return redirect(url_for('get_specific_item', item_id=item_id))
+
+
 
 ##helper functions
 def get_all_authors():

@@ -11,15 +11,13 @@ class WishList(BASE):
 
     item_id = Column(INTEGER, nullable=False)
     customer_id = Column(INTEGER, nullable=False)
-    seller = Column(String(100), nullable=False)
 
     customer = relationship("Customer", backref=backref('wish_list'))
 
     __table_args__ = (
-        PrimaryKeyConstraint('item_id', 'customer_id', 'seller', name='PRIMARY'),
+        PrimaryKeyConstraint('item_id', 'customer_id', name='PRIMARY'),
         ForeignKeyConstraint(['customer_id'],['customer.customer_id']))
 
-    def __init__(self, item_id, customer_id, seller):
+    def __init__(self, item_id, customer_id):
         self.item_id = item_id
         self.customer_id = customer_id
-        self.seller = seller
