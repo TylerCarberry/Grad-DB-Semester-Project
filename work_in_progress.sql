@@ -281,7 +281,7 @@ select * FROM all_items;
 # Run this if you are getting errors about sweeden charset
 SET collation_connection = 'utf8_general_ci';
 ALTER DATABASE carberryt9 CHARACTER SET utf8 COLLATE utf8_general_ci;
-ALTER TABLE wish_list CONVERT TO CHARACTER SET utf8 COLLATE utf8_general_ci;
+ALTER TABLE carberryt9.cart CONVERT TO CHARACTER SET utf8 COLLATE utf8_general_ci;
 
 
 # 7. Ability to generate a restocking order (should be saved in a ”restocking” table) if the supply of any of your products falls below the minimum stock level
@@ -430,3 +430,20 @@ WHERE w.item_id NOT IN
 
 SELECT * FROM wish_list_never_purchased;
 
+
+
+
+# Extra Credit
+CREATE OR REPLACE VIEW items_sold_day_of_week AS
+SELECT dayname(t.transaction_time) dayofweek, sum(t.quantity) num_items_sold FROM transaction t group by dayofweek order by num_items_sold desc;
+
+
+# Customers that spent the most money
+CREATE OR REPLACE VIEW customers_spent_most AS
+SELECT c.customer_id id, concat(c.first_name, ' ', c.last_name) name, c.email email, sum(t.quantity * i.cost) AS amount_spent
+FROM customer c
+  JOIN transaction t on c.customer_id = t.customer_id
+  JOIN all_items i on i.id = t.item_id
+GROUP BY c.customer_id
+ORDER BY amount_spent DESC
+LIMIT 10;

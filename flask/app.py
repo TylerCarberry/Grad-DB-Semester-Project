@@ -63,6 +63,9 @@ def admin():
            "<p><a href='/never_bought'> Wish list but never bought</a></p>" \
            "<p><a href='/not_active_customers'> Not active customers</a></p>" \
            "<br/>" \
+           "<p><a href='/items_sold_day_of_week'>EXTRA CREDIT: Number of items sold per day of week</a></p>" \
+           "<p><a href='/customers_spent_most'>EXTRA CREDIT:Customers who spent the most money</a></p>" \
+           "<br/>" \
            "<p><a href='/book'>View All Books</a></p>" \
            "<p><a href='/author'>View All Authors</a></p>" \
            "<p><a href='/publisher'>View All Publishers</a></p>"
@@ -87,6 +90,17 @@ def when_ship():
 def not_active_customers():
     all_customers = session.execute("SELECT * FROM not_active_customers").fetchall()
     return render_template("customers.html", customers=all_customers)
+
+@app.route('/items_sold_day_of_week/', methods=['GET'])
+def num_sold_day_week():
+    num_sold_day_week = session.execute("SELECT * FROM items_sold_day_of_week").fetchall()
+    return render_template("num_sold_day_of_week.html", num_sold_day_week=num_sold_day_week)
+
+
+@app.route('/customers_spent_most/', methods=['GET'])
+def customers_spent_most():
+    customers_spent_most = session.execute("SELECT * FROM customers_spent_most").fetchall()
+    return render_template("customers_spent_most.html", customers_spent_most=customers_spent_most)
 
 
 @app.route('/book/')

@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Number of items sold per day of week</h2>
+
+	<ul>
+		{% for item in num_sold_day_week %}
+        <li>{{item.dayofweek}} - {{item.num_items_sold}} items sold</li>
+		{% endfor %}
+	</ul>&nbsp;
+	
+{% endblock %}
+	

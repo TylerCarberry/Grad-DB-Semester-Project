@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Customers who spent the most money</h2>
+
+	<ul>
+		{% for customer in customers_spent_most %}
+        <li>{{customer.name}} spent {{'${:,.2f}'.format(customer.amount_spent)}} in total</li>
+		{% endfor %}
+	</ul>&nbsp;
+	
+{% endblock %}
+	
