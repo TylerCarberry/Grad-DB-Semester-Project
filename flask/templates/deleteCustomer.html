@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% block content %}
+	{% block h1 %}Are you sure you want to delete <b>{{customer.first_name}} {{customer.last_name}}</b>?{% endblock %}
+	<form action = "{{url_for('delete_customer', customer_id = customer.customer_id) }}" method='post'>
+		<input type='submit' />
+	</form>
+	<a href="{{url_for('our_customers') }}">Cancel</a>
+{% endblock %}

@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block h1 %}Customer{% endblock %}
+
+{% block content %}
+    <h1>{{customer.first_name}} {{customer.last_name}}</h1>
+	Address: {{customer.address}}
+	
+	Email: {{customer.email}}
+	
+    <a href = "/customer/modify/{{customer.customer_id}}">Modify</a> &nbsp;&nbsp;
+    <a href = "/customer/delete/{{customer.customer_id}}">Delete</a>
+{% endblock %}
+	

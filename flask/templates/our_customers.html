@@ -5,9 +5,9 @@
 
 	<ul>
 		{% for customer in customers %}
-        <li><a href = {{customer.email}}>{{customer.first_name}} {{customer.last_name}}</a></li>
+        <li><a href = /customer/{{customer.customer_id}}>{{customer.first_name}} {{customer.last_name}}</a></li>
 		{% endfor %}
-	</ul>&nbsp;
+	</ul>
 	
 {% endblock %}
 	

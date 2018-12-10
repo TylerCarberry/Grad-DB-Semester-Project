@@ -305,10 +305,10 @@ def get_specific_item(item_id):
     return render_template("item_details.html", item=the_item, on_wishlist=(on_wishlist != None), my_rating=num_stars)
 
 
-@app.route('/customer/', methods=['GET'])
+@app.route('/all_customers/', methods=['GET'])
 def get_all_customers():
     all_customers = session.execute("SELECT * FROM all_customers").fetchall()
-    return render_template("customers.html", customers=all_customers)
+    return render_template("all_customers.html", customers=all_customers)
 
 
 @app.route('/never_bought/', methods=['GET'])
@@ -474,6 +474,63 @@ def rate_item(item_id):
     session.commit()
     return redirect(url_for('get_specific_item', item_id=item_id))
 
+
+@app.route('/customers/')
+def our_customers():
+    customers = session.query(Customer.Customer).all()
+    return render_template('our_customers.html',
+                           customers=customers)
+
+
+@app.route('/customer/<int:customer_id>/')
+def one_customer(customer_id):
+    customer = session.query(Customer.Customer).filter_by(customer_id=customer_id).one()
+    return render_template('customer.html',
+                           customer=customer)
+
+@app.route('/customer/new/', methods=['GET','POST'])
+def new_customer():
+    if request.method == 'POST':
+        first_name=request.form['first_name']
+        last_name=request.form['last_name']
+		address=request.form['address']
+		email=request.form['email']
+		customer = Customer.Customer(first_name=first_name, last_name=last_name,address=address,email=email)
+        session.add(customer)
+        session.commit()
+        flash("New customer " + first_name + " " + last_name + " created")
+        return redirect(url_for('our_customers'))
+    else:
+        return render_template('newCustomer.html')
+
+
+@app.route('/customer/modify/<int:customer_id>', methods=['GET','POST'])
+def modify_customer(customer_id):
+    customer = session.query(Customer.Customer).filter_by(customer_id=customer_id).one()
+    if request.method == 'POST':
+        customer.first_name=request.form['first_name']
+		customer.last_name=request.form['last_name']
+		customer.address=request.form['address']
+		customer.email=request.form['email']
+        session.add(customer)
+        session.commit()
+        flash("Customer " + customer.first_name + " " + customer.last_name + " edited")
+        return redirect(url_for('our_customers'))
+    else:
+        return render_template('editCustomer.html',
+                               customer=customer)
+
+
+@app.route('/customer/delete/<int:publisher_id>/', methods=['GET', 'POST'])
+def delete_customer(customer_id):
+    customer = session.query(Customer.Customer).filter_by(customer_id=customer_id).one()
+    if request.method == 'POST':
+        session.delete(customer)
+        session.commit()
+        flash(customer.first_name + " " + customer.last_name + "deleted")
+        return redirect(url_for('our_customers'))
+    else:
+        return render_template('deleteCustomer.html', customer=customer)
 
 
 ##helper functions
