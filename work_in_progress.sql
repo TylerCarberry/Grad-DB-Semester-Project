@@ -173,36 +173,36 @@ CREATE OR REPLACE VIEW northwind_customers(first_name, last_name, email, address
 SELECT c.first_name, c.last_name, ifnull(c.email_address, 'unknown email'), concat(c.address, ' ', c.city, ' ', c.state_province, ' ', c.zip_postal_code, ' ', c.country_region) from northwind.customers c
 ;
 
-EXPLAIN SELECT * FROM northwind_customers;
+SELECT * FROM northwind_customers;
 
 # List of Rowan Books customers with first name, last name, email, and address
 CREATE OR REPLACE VIEW rowan_customers(first_name, last_name, email, address) AS
 SELECT c.first_name, c.last_name, ifnull(c.email, 'unknown email'), c.address FROM carberryt9.customer c
 ;
 
-EXPLAIN SELECT * FROM rowan_customers;
+SELECT * FROM rowan_customers;
 
 show tables;
 
 
 # All customers from sakila, northwind, adventure works
-CREATE OR REPLACE VIEW all_customers (first_name, last_name, email, address, store) AS
-  SELECT first_name, last_name, email, address, 'northwind' FROM northwind_customers
+CREATE OR REPLACE VIEW all_customers3 (first_name, last_name, email, address) AS
+  SELECT first_name, last_name, email, address FROM rowan_customers
   UNION ALL
-  SELECT first_name, last_name, email, address, 'sakila' FROM sakila_customers
-  UNION ALL
-  SELECT first_name, last_name, email, address, 'adventureworks' FROM adventure_customers
-  UNION ALL
-  SELECT first_name, last_name, email, address, 'rowan_books' FROM rowan_customers
+  SELECT first_name, last_name, email, address FROM northwind_customers
+  #SELECT first_name, last_name, email, address FROM sakila_customers
+  #UNION ALL
+  #SELECT first_name, last_name, email, address FROM adventure_customers
+  #UNION ALL
 ;
 
 
 
 SELECT count(*) FROM adventure_customers;
 
-SELECT count(*) FROM all_customers;
+SELECT * FROM all_customers3;
 
-EXPLAIN SELECT * FROM all_customers;
+SELECT * FROM all_customers;
 
 # Products
 # The view for northwind products
@@ -238,18 +238,28 @@ GROUP BY f.film_id
 
 SELECT * FROM sakila_items;
 
-drop view rowan_items;
+DROP VIEW rowan_items;
 
 CREATE OR REPLACE VIEW rowan_items(id, name, description, category, cost) AS
-SELECT b.book_id, b.title, b.description,
+SELECT b.book_id, b.title, concat('(', p.name, ') ', b.description),
        group_concat(g.name separator ','), b.price
 FROM carberryt9.book b
 JOIN carberryt9.book_genre bg on b.book_id = bg.book_id
 JOIN carberryt9.genre g on g.genre_id = bg.genre_id
+JOIN publisher p on b.publisher_id = p.publisher_id
 GROUP BY b.book_id
 ;
 
-SELECT * FROM rowan_items;
+
+CREATE OR REPLACE VIEW rowan_items_including_author(id, name, description, category, cost) AS
+SELECT book_and_author.id, book_and_author.name, concat(group_concat(book_and_author.author), ' ', book_and_author.description), book_and_author.category, book_and_author.cost
+FROM (
+       SELECT ri.id, ri.name, ri.description, ri.category, ri.cost, concat(a.first_name, ' ', a.last_name) author
+       FROM rowan_items ri
+              JOIN author_book ab on ab.book_id = ri.id
+              JOIN author a on ab.author_id = a.author_id
+     ) book_and_author
+GROUP BY book_and_author.id;
 
 
 # All items from sakila, northwind, adventure works
@@ -260,10 +270,10 @@ CREATE OR REPLACE VIEW all_items (id, name, description, category, cost) AS
   UNION
   SELECT concat('adventure_', id), name, description, category, cost FROM adventure_items
   UNION
-  SELECT concat('rowan_', id), name, description, category, cost FROM rowan_items
+  SELECT concat('rowan_', id), name, description, category, cost FROM rowan_items_including_author
 ;
 
-
+select * FROM all_items;
 
 
 

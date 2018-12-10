@@ -8,7 +8,7 @@ from sqlalchemy import Column, String, PrimaryKeyConstraint, ForeignKey
 from sqlalchemy.dialects.mysql import INTEGER, DOUBLE
 from sqlalchemy.orm import relationship, backref
 
-from EntitiesAsClasses import Author
+from EntitiesAsClasses import Author, Genre
 from EntitiesAsClasses.Base import BASE
 from sqlalchemy.sql.schema import ForeignKeyConstraint
 
@@ -22,8 +22,8 @@ class Book(BASE):
     num_in_stock = Column(INTEGER(unsigned=True), nullable=False)
     pages = Column(INTEGER(unsigned=True), nullable=False)
     release_year = Column(INTEGER(unsigned=True), nullable=True)
-	#put this back if things break
-    #publisher_id = Column(INTEGER(unsigned=True), ForeignKey('publisher.publisher_id'), nullable=False)
+    #put this back if things break. Ok, I did
+    publisher_id = Column(INTEGER(unsigned=True), ForeignKey('publisher.publisher_id'), nullable=False)
     price = Column(DOUBLE, nullable=False)
 
     publisher = relationship("Publisher", backref=backref('book'))
@@ -41,17 +41,17 @@ class Book(BASE):
         self.pages = pages
         self.release_year = release_year
         self.price = price
-		self.publisher = publisher
+        self.publisher = publisher
         self.addAuthor(author)
-		self.addGenre(genre)
+        self.addGenre(genre)
 
     def addAuthor(self, author):
         newEntry = Author.Author_Book(author=author, book=self)
         self.author_book.append(newEntry)
-		
-	def addGenre(self, genre):
-		newEntry = Genre.Book_Genre(genre=genre, book=self)
-		self.book_genre.append(newEntry)
+
+    def addGenre(self, genre):
+        newEntry = Genre.Book_Genre(genre=genre, book=self)
+        self.book_genre.append(newEntry)
 
 
 

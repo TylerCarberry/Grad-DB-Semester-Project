@@ -13,7 +13,7 @@ from sqlalchemy.orm import sessionmaker
 
 # use a constant here, so that the same bases is used for all tables
 # Now save this schema information to the database
-from EntitiesAsClasses import Author, Customer, Book, Publisher, Rating, Restock, Transaction, Cart
+from EntitiesAsClasses import Author, Customer, Book, Publisher, Rating, Restock, Transaction, Cart, Genre
 from sqlalchemy.ext.declarative import declarative_base
 
 BASE = declarative_base()
@@ -48,9 +48,6 @@ def shop():
     return "<h1>Shop</h1>" \
            "<p><a href='/recommended'>Recommended for you</a></p>" \
            "<p><a href='/categories'>Shop By Category</a></p>" \
-           "<p><a href='/book'>View All Books</a></p>" \
-           "<p><a href='/author'>View All Authors</a></p>" \
-           "<p><a href='/publisher'>View All Publishers</a></p>" \
            "<p><a href='/cart'>View Your Cart</a></p>"
 
 
@@ -127,29 +124,29 @@ def modify_book(book_id):
                 session.delete(itemToBeDeleted)
             else:
                 session.query(Author.Author_Book).filter_by(author_id=author.author_id, book_id=book.book_id).update({"author_id":current_author_id})
-		
-		for genre in book.genres:
+
+        for genre in book.genres:
             current_genre_id = request.form['genre_id_'+str(genre.genre_id)]
             if int(current_author_id) == 0:
                 itemToBeDeleted = session.query(Genre.Book_Genre).filter_by(genre_id=genre.genre_id, book_id=book.book_id).one()
                 session.delete(itemToBeDeleted)
             else:
                 session.query(Genre.Book_Genre).filter_by(genre_id=genre.genre_id, book_id=book.book_id).update({"genre_id":current_genre_id})
-				
+
         book.release_year = request.form['release_year']
         book.price = request.form['price']
-		book.num_in_stock = request.form['stock']
-		# put this in if things break, also requires change to editBook.html 
+        book.num_in_stock = request.form['stock']
+        # put this in if things break, also requires change to editBook.html
         # book.publisher_id = request.form['publisher_id']
-		book.publisher.publisher_id = int(request.form['publisher_id'])
+        book.publisher.publisher_id = int(request.form['publisher_id'])
         session.add(book)
         session.commit()
         flash(book.title + "'s information updated")
         return redirect(url_for('all_books'))
     else:
         authors = get_all_authors()
-		genres = get_all_genres()
-		publishers = get_all_publishers()
+        genres = get_all_genres()
+        publishers = get_all_publishers()
         return render_template('editBook.html', book=book, allAuthors=authors, allGenres=genres, allPublishers=publishers)
 
 
@@ -175,8 +172,8 @@ def insert_book():
         release_year = request.form['release_year']
         price = request.form['price']
         author = session.query(Author.Author).filter_by(author_id = request.form['author_id']).one()
-		publisher = session.querry(Publisher.Publisher).filter_by(publisher_id = request.form['publisher_id']).one()
-		genre = session.querry(Genre.Genre).filter_by(genre_id = request.form['genre_id']).one()
+        publisher = session.querry(Publisher.Publisher).filter_by(publisher_id = request.form['publisher_id']).one()
+        genre = session.querry(Genre.Genre).filter_by(genre_id = request.form['genre_id']).one()
         newBook = Book.Book(title=title, description=description, num_in_stock=num_in_stock, pages=pages,
                             release_year=release_year, author=author, price=price,)
         session.add(newBook)
@@ -185,8 +182,8 @@ def insert_book():
         return redirect(url_for('all_books'))
     else:
         authors = get_all_authors()
-		genres = get_all_genres()
-		publishers = get_all_publishers()
+        genres = get_all_genres()
+        publishers = get_all_publishers()
         return render_template('newBook.html', authors=authors, genres=genres, publishers=publishers)
 
 
@@ -305,19 +302,19 @@ def wish_list_never_bought():
 def get_authors():
     authors = get_all_authors()
     return render_template("authors.html", authors=authors)
-	
+
 @app.route('/author/<int:author_id>/')
 def one_author(author_id):
     author = session.query(Author.Author).filter_by(author_id=author_id).one()
     return render_template('publisher.html',
                            author=author)
 
-	
+
 @app.route('/add_author/',methods=['GET','POST'])
 def add_author():
-	if request.method == 'POST':
+    if request.method == 'POST':
         first_name=request.form['author_first_name']
-		last_name=request.form['author_last_name']
+        last_name=request.form['author_last_name']
         author = Author.Author(first_name=first_name,last_name=last_name)
         session.add(author)
         session.commit()
@@ -341,7 +338,7 @@ def modify_author(author_id):
         return render_template('editAuthor.html',
                                author=author)
 
-							   
+
 @app.route('/author/delete/<int:author_id>/', methods=['GET', 'POST'])
 def delete_author(author_id):
     author = session.query(Author.Author).filter_by(author_id=author_id).one()
