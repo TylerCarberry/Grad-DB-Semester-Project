@@ -65,7 +65,11 @@ def admin():
            "<p><a href='/not_active_customers'> Not active customers</a></p>" \
            "<br/>" \
            "<p><a href='/items_sold_day_of_week'>EXTRA CREDIT: Number of items sold per day of week</a></p>" \
-           "<p><a href='/customers_spent_most'>EXTRA CREDIT:Customers who spent the most money</a></p>" \
+           "<p><a href='/customers_spent_most'>EXTRA CREDIT: Customers who spent the most money</a></p>" \
+           "<br/>" \
+           "<p><a href='/customers/'>View Our Customers</a></p>" \
+           "<p><a href='/all_customers/'>View All Customers (Due to a bug, viewing all customers takes a minute to load. The link below excludes adventureworks)</a></p>" \
+           "<p><a href='/most_customers/'>View Most Customers</a></p>" \
            "<br/>" \
            "<p><a href='/book'>View All Books</a></p>" \
            "<p><a href='/author'>View All Authors</a></p>" \
@@ -89,7 +93,7 @@ def when_ship():
 @app.route('/not_active_customers/', methods=['GET'])
 def not_active_customers():
     all_customers = session.execute("SELECT * FROM not_active_customers").fetchall()
-    return render_template("customers.html", customers=all_customers)
+    return render_template("all_customers.html", customers=all_customers)
 
 
 @app.route('/items_sold_day_of_week/', methods=['GET'])
@@ -315,8 +319,38 @@ def get_specific_item(item_id):
 
 @app.route('/all_customers/', methods=['GET'])
 def get_all_customers():
-    all_customers = session.execute("SELECT * FROM all_customers").fetchall()
-    return render_template("all_customers.html", customers=all_customers)
+    print("HELLO!")
+    # There is a bug with our database where unioning all 4 stores together takes a really long time
+    # Splitting it up in to multiple queries runs much faster
+    all_customers = session.execute("SELECT * FROM rowan_customers").fetchall()
+    print("ROWAN!")
+    all_customers2 = session.execute("SELECT * FROM sakila_customers").fetchall()
+    print("SAKILA!")
+    all_customers3 = session.execute("SELECT * FROM northwind_customers").fetchall()
+    print("NORTH!")
+    all_customers4 = session.execute("SELECT * FROM adventure_customers").fetchall()
+    print("ADVENTURE!")
+    return render_template("all_customers.html", customers=all_customers, customers2=all_customers2, customers3=all_customers3, customers4=all_customers4)
+
+
+
+@app.route('/most_customers/', methods=['GET'])
+def get_most_customers():
+    print("HELLO!")
+    # There is a bug with our database where unioning all 4 stores together takes a really long time
+    # Splitting it up in to multiple queries runs much faster
+    all_customers = session.execute("SELECT * FROM rowan_customers").fetchall()
+    print("ROWAN!")
+    all_customers2 = session.execute("SELECT * FROM sakila_customers").fetchall()
+    print("SAKILA!")
+    all_customers3 = session.execute("SELECT * FROM northwind_customers").fetchall()
+    print("NORTH!")
+    all_customers4 = [] #session.execute("SELECT * FROM adventure_customers").fetchall()
+    print("ADVENTURE!")
+    return render_template("all_customers.html", customers=all_customers, customers2=all_customers2, customers3=all_customers3, customers4=all_customers4)
+
+
+
 
 
 @app.route('/never_bought/', methods=['GET'])

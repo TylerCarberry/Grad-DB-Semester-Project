@@ -5,9 +5,22 @@
 
 	<ul>
 		{% for customer in customers %}
-        <li><a href = {{customer.email}}>{{customer.first_name}} {{customer.last_name}}</a></li>
+		<li>{{customer.first_name.capitalize()}} {{customer.last_name.capitalize()}} {{customer.email.lower()}} <u>{{customer.address}}</u></li>
+		<br/>
 		{% endfor %}
-	</ul>
+		{% for customer in customers2 %}
+		<li>{{customer.first_name.upper()}} {{customer.last_name.capitalize()}} {{customer.email.lower()}} <u>{{customer.address}}</u></li>
+		<br/>
+		{% endfor %}
+		{% for customer in customers3 %}
+		<li>{{customer.first_name.upper()}} {{customer.last_name.capitalize()}} {{customer.email.lower()}} <u>{{customer.address}}</u></li>
+		<br/>
+		{% endfor %}
+		{% for customer in customers4 %}
+		<li>{{customer.first_name.upper()}} {{customer.last_name.capitalize()}} {{customer.email.lower()}} <u>{{customer.address}}</u></li>
+		<br/>
+		{% endfor %}
+	</ul>&nbsp;
 	
 {% endblock %}
 	
