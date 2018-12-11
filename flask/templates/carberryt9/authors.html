@@ -3,11 +3,11 @@
 {% block content %}
 <h2>Authors:</h2>
 
-	<a href="/add_author/">Create Author</a>
+	<a href="add_author/">Create Author</a>
 
 	<ul>
 		{% for author in authors %}
-			<li><a href="/author/{{author.author_id}}/">{{author.first_name}} {{author.last_name}} </a></li>
+			<li><a href="author/{{author.author_id}}/">{{author.first_name}} {{author.last_name}} </a></li>
 		{% endfor %}
 	</ul>
 

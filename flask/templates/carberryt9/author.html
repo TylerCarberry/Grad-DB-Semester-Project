@@ -3,12 +3,12 @@
 
 {% block content %}
     <h1>{{author.first_name}} {{author.last_name}}</h1>
-    <a href = "/author/modify/{{author.author_id}}">Modify</a> &nbsp;&nbsp;
-    <a href = "/author/delete/{{author.author_id}}">Delete</a>
+    <a href = "author/modify/{{author.author_id}}">Modify</a> &nbsp;&nbsp;
+    <a href = "author/delete/{{author.author_id}}">Delete</a>
     <h2>Books published</h2>
     <ul>
     {% for book in author.books %}
-        <li><a href="/book/{{book.id}}">{{book.title}}</a></li>
+        <li><a href="book/{{book.id}}">{{book.title}}</a></li>
     {% endfor %}
     </ul>
 {% endblock %}

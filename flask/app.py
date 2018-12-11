@@ -24,11 +24,12 @@ BASE = declarative_base()
 username = 'carberryt9'
 
 # The password to the database. Not your Rowan password!
-password = 'password1'
+password = 'mustardday'
 # ON ELVIS
-connection = create_engine('mysql+pymysql://' + username + ':' + password + '@elvis.rowan.edu/' + username)
+connection = create_engine('mysql://carberryt9:mustardday@localhost/carberryt9', isolation_level='READ_COMMITTED')
 # ON LOCAL
 # connection = create_engine('mysql+pymysql://'+'username:password'+':@localhost:3306/'+'schemaName')
+
 BASE.metadata.create_all(connection)
 
 # create a session that we can use to interact with the database
@@ -44,20 +45,15 @@ def home():
     return render_template("./carberryt9/home.html")
 
 
-@page.route('/test')
-def home():
-    return "Hello world!"
-
-
 @page.route('/shop/')
 def shop():
     global current_user_id
     current_user_id = 1
     return "<h1>Shop</h1>" \
-           "<p><a href='/recommended'>Recommended for you</a></p>" \
-           "<p><a href='/categories'>Shop By Category</a></p>" \
-           "<p><a href='/wishlist'>View Wishlist</a></p>" \
-           "<p><a href='/cart'>View Your Cart</a></p>"
+           "<p><a href='recommended'>Recommended for you</a></p>" \
+           "<p><a href='categories'>Shop By Category</a></p>" \
+           "<p><a href='wishlist'>View Wishlist</a></p>" \
+           "<p><a href='cart'>View Your Cart</a></p>"
 
 
 # TODO: Make this a template
@@ -66,22 +62,22 @@ def admin():
     global current_user_id
     current_user_id = 0
     return "<h1>Welcome to Rowan Bookstore - Admin Page</h1>" \
-           "<p><a href='/low_inventory'> Inventory that has fallen below the minimum stock level</a></p>" \
-           "<p><a href='/when_ship'> When will orders ship?</a></p>" \
-           "<p><a href='/never_bought'> Wish list but never bought</a></p>" \
-           "<p><a href='/not_active_customers'> Not active customers</a></p>" \
-           "<p><a href='/most_wished_category'> Most wished for item in each category</a></p>" \
+           "<p><a href='low_inventory'> Inventory that has fallen below the minimum stock level</a></p>" \
+           "<p><a href='when_ship'> When will orders ship?</a></p>" \
+           "<p><a href='never_bought'> Wish list but never bought</a></p>" \
+           "<p><a href='not_active_customers'> Not active customers</a></p>" \
+           "<p><a href='most_wished_category'> Most wished for item in each category</a></p>" \
            "<br/>" \
-           "<p><a href='/items_sold_day_of_week'>EXTRA CREDIT: Number of items sold per day of week</a></p>" \
-           "<p><a href='/customers_spent_most'>EXTRA CREDIT: Customers who spent the most money</a></p>" \
+           "<p><a href='items_sold_day_of_week'>EXTRA CREDIT: Number of items sold per day of week</a></p>" \
+           "<p><a href='customers_spent_most'>EXTRA CREDIT: Customers who spent the most money</a></p>" \
            "<br/>" \
-           "<p><a href='/customers/'>View Our Customers</a></p>" \
-           "<p><a href='/all_customers/'>View All Customers (Due to a bug, viewing all customers takes a minute to load. The link below excludes adventureworks)</a></p>" \
-           "<p><a href='/most_customers/'>View Most Customers</a></p>" \
+           "<p><a href='customers/'>View Our Customers</a></p>" \
+           "<p><a href='all_customers/'>View All Customers (Due to a bug, viewing all customers takes a minute to load. The link below excludes adventureworks)</a></p>" \
+           "<p><a href='most_customers/'>View Most Customers</a></p>" \
            "<br/>" \
-           "<p><a href='/book'>View All Books</a></p>" \
-           "<p><a href='/author'>View All Authors</a></p>" \
-           "<p><a href='/publisher'>View All Publishers</a></p>"
+           "<p><a href='book'>View All Books</a></p>" \
+           "<p><a href='author'>View All Authors</a></p>" \
+           "<p><a href='publisher'>View All Publishers</a></p>"
 
 
 @page.route('/low_inventory/')
@@ -539,7 +535,7 @@ def checkout():
         session.commit()
 
     return "Order successful! Orders bought today will ship on " + day["day_of_week"] \
-           + "<br/> <a href = '/shop/'>Buy more stuff!</a>"
+           + "<br/> <a href = 'shop/'>Buy more stuff!</a>"
 
 
 @page.route('/rate_item/<string:item_id>', methods=['POST'])

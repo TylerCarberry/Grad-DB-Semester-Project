@@ -17,10 +17,10 @@
 
 {% if not cart %}
         <p>Your cart is empty</p>
-<a href = '/shop/'>Go buy some stuff!</a>
+<a href = 'shop/'>Go buy some stuff!</a>
 
 {% else %}
-<form action="/checkout/" method="post">
+<form action="checkout/" method="post">
   <input type="submit" value="Checkout">
 </form>
     {% endif %}
