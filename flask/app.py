@@ -63,6 +63,7 @@ def admin():
            "<p><a href='/when_ship'> When will orders ship?</a></p>" \
            "<p><a href='/never_bought'> Wish list but never bought</a></p>" \
            "<p><a href='/not_active_customers'> Not active customers</a></p>" \
+           "<p><a href='/most_wished_category'> Most wished for item in each category</a></p>" \
            "<br/>" \
            "<p><a href='/items_sold_day_of_week'>EXTRA CREDIT: Number of items sold per day of week</a></p>" \
            "<p><a href='/customers_spent_most'>EXTRA CREDIT: Customers who spent the most money</a></p>" \
@@ -106,6 +107,13 @@ def num_sold_day_week():
 def customers_spent_most():
     customers_spent_most = session.execute("SELECT * FROM customers_spent_most").fetchall()
     return render_template("customers_spent_most.html", customers_spent_most=customers_spent_most)
+
+
+
+@app.route('/most_wished_category/', methods=['GET'])
+def most_wished_category():
+    most_wished_category = session.execute("SELECT * FROM most_wished_for_item_every_category").fetchall()
+    return render_template("most_wished_category.html", most_wished_category=most_wished_category)
 
 
 @app.route('/book/')
