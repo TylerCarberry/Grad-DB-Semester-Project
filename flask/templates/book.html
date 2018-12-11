@@ -15,20 +15,22 @@ Current user logged in {{user}}
 	Publisher: {{book.publisher.name}}
 	<br/>
 	Description: {{book.description}}
-<br/>
+	<br/>
 	Pages: {{book.pages}}
-	
+	<br/>
 	Genres: 
 	<ul>
-		{% for genre in book_genre %}
+		{% for genre in book.genres %}
 			<li>{{genre.name}} </li>
 		{% endfor %}
 	</ul>
 	
 	Release Year: {{book.release_year}}
+	<br/>
 	
-	Price: {{book.price}}
-	
+	Price: {{'${:,.2f}'.format(book.price)}}
+	<br/>
+
 	In stock: {{book.num_in_stock}}
 <p></p>
 	{% if current_user_id == 0 %}
