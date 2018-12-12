@@ -5,8 +5,8 @@
 
 	<ul>
 		{% for item in cart %}
-			<li><a href = '/item/{{item.id}}/'>{{item.name.capitalize()}}</a> {{'${:,.2f}'.format(item.cost)}} each --- Quantity: {{item.quantity}}</li>
-		<form action="/remove_from_cart/{{item.id}}" method="post">
+			<li><a href = '/carberryt9/item/{{item.id}}/'>{{item.name.capitalize()}}</a> {{'${:,.2f}'.format(item.cost)}} each --- Quantity: {{item.quantity}}</li>
+		<form action="/carberryt9/remove_from_cart/{{item.id}}" method="post">
   			<input type="submit" value="Remove From Cart">
 		</form>
 
@@ -17,7 +17,7 @@
 
 {% if not cart %}
         <p>Your cart is empty</p>
-<a href = 'shop/'>Go buy some stuff!</a>
+<a href = '/carberryt9/shop/'>Go buy some stuff!</a>
 
 {% else %}
 <form action="checkout/" method="post">

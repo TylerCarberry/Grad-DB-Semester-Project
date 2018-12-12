@@ -3,12 +3,12 @@
 
 {% block content %}
     <h1>{{publisher.name}}</h1>
-    <a href = "publisher/modify/{{publisher.publisher_id}}">Modify</a> &nbsp;&nbsp;
-    <a href = "publisher/delete/{{publisher.publisher_id}}">Delete</a>
+    <a href = "/carberryt9/publisher/modify/{{publisher.publisher_id}}">Modify</a> &nbsp;&nbsp;
+    <a href = "/carberryt9/publisher/delete/{{publisher.publisher_id}}">Delete</a>
     <h2>Books published</h2>
     <ul>
     {% for book in publisher.books %}
-        <li><a href="book/{{book.id}}">{{book.title}}</a></li>
+        <li><a href="/carberryt9/book/{{book.id}}">{{book.title}}</a></li>
     {% endfor %}
     </ul>
 {% endblock %}
