@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "carberryt9/base.html" %}
 
 {% block content %}
 <h2>{{item.name}}</h2>
@@ -14,23 +14,23 @@
 <p>No reviews yet</p>
 {% endif %}
 
-<form action="/rate_item/{{item.id}}" method="post">
+<form action="/carberryt9/rate_item/{{item.id}}" method="post">
   Num Stars:
   <input type="number" name="stars" min="1" max="5" value="{{my_rating}}">
   <input type="submit" value="Rate">
 </form>
 
 {% if on_wishlist %}
-<form action="/remove_from_wishlist/{{item.id}}" method="post">
+<form action="/carberryt9/remove_from_wishlist/{{item.id}}" method="post">
   <input type="submit" value="Remove from wishlist">
 </form>
 {% else %}
-<form action="/add_to_wishlist/{{item.id}}" method="post">
+<form action="/carberryt9/add_to_wishlist/{{item.id}}" method="post">
   <input type="submit" value="Add to wishlist">
 </form>
 {% endif %}
 
-<form action="/add_to_cart/{{item.id}}" method="post">
+<form action="/carberryt9/add_to_cart/{{item.id}}" method="post">
   Quantity:
   <input type="number" name="quantity" min="1" max="10" value="1">
   <input type="submit" value="Add to cart">

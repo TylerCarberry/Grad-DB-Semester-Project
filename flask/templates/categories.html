@@ -1,13 +1,13 @@
-{% extends "base.html" %}
+{% extends "carberryt9/base.html" %}
 
 {% block content %}
 <h2>Categories</h2>
 
-<h2><a href = ../specials/>NEW: Try our Specials</a></li></h2>
+<h2><a href = /carberryt9/specials/>NEW: Try our Specials</a></li></h2>
 
 	<ul>
 		{% for category in categories %}
-		<li><a href = ../item/{{"?category=" + category.encoded_name}}>{{category.name}}</a>&nbsp;</li>
+		<li><a href = /carberryt9/item/{{"?category=" + category.encoded_name}}>{{category.name}}</a>&nbsp;</li>
 		{% endfor %}
 	</ul>&nbsp;
 	

@@ -1,7 +1,7 @@
-{% extends "base.html" %}
+{% extends "carberryt9/base.html" %}
 
 {% block content %}
-	<form action = "{{ url_for('modify_customer', customer_id=customer.customer_id) }}" method ='POST'>
+	<form action = "{{ url_for('.modify_customer', customer_id=customer.customer_id) }}" method ='POST'>
 		<label for='first_name'>First Name: </label>
 		<input type='text' size = '50' name='first_name' value='{{customer.first_name}}'/>
 		<br/>

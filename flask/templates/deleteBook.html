@@ -1,8 +1,8 @@
-{% extends "base.html" %}
+{% extends "carberryt9/base.html" %}
 {% block content %}
 	{% block h1 %}Are you sure you want to delete <b>{{book.title}}</b>?{% endblock %}
-	<form action = "{{url_for('delete_book', book_id = book.book_id) }}" method='post'>
+	<form action = "{{url_for('.delete_book', book_id = book.book_id) }}" method='post'>
 		<input type='submit' />
 	</form>
-	<a href="{{url_for('all_books') }}">Cancel</a>
+	<a href="{{url_for('.all_books') }}">Cancel</a>
 {% endblock %}

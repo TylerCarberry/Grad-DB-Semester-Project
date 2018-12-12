@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "carberryt9/base.html" %}
 {% block h1 %}Customer{% endblock %}
 
 {% block content %}
@@ -7,7 +7,7 @@
 	
 	Email: {{customer.email}}
 	
-    <a href = "/customer/modify/{{customer.customer_id}}">Modify</a> &nbsp;&nbsp;
-    <a href = "/customer/delete/{{customer.customer_id}}">Delete</a>
+    <a href = "/carberryt9/customer/modify/{{customer.customer_id}}">Modify</a> &nbsp;&nbsp;
+    <a href = "/carberryt9/customer/delete/{{customer.customer_id}}">Delete</a>
 {% endblock %}
 	

@@ -2,9 +2,9 @@ import os
 import urllib
 import time
 
-from flask import Flask, render_template, url_for, request, flash, redirect
+from flask import Flask, render_template, url_for, request, flash, redirect, Blueprint
 
-app = Flask(__name__)
+#app = Flask(__name__)
 
 from sqlalchemy import and_, or_, not_
 from sqlalchemy import create_engine
@@ -16,15 +16,17 @@ from sqlalchemy.orm import sessionmaker
 from EntitiesAsClasses import Author, Customer, Book, Publisher, Rating, Restock, Transaction, Cart, Genre, WishList
 from sqlalchemy.ext.declarative import declarative_base
 
+page = Blueprint('carberryt9',__name__, template_folder='templates',  static_folder='static')
+
 BASE = declarative_base()
 
 # Your Rowan username
 username = 'carberryt9'
 
 # The password to the database. Not your Rowan password!
-password = 'password1'
+password = 'mustardday'
 # ON ELVIS
-connection = create_engine('mysql+pymysql://' + username + ':' + password + '@elvis.rowan.edu/' + username)
+connection = create_engine('mysql://' + username + ':' + password + '@elvis.rowan.edu/' + username)
 # ON LOCAL
 # connection = create_engine('mysql+pymysql://'+'username:password'+':@localhost:3306/'+'schemaName')
 BASE.metadata.create_all(connection)
@@ -37,103 +39,104 @@ session = Session()
 current_user_id = 0
 
 
-@app.route('/')
+@page.route('/')
 def home():
-    return render_template("home.html")
+    return render_template("/carberryt9/home.html")
 
 
-@app.route('/shop/')
+@page.route('/shop/')
 def shop():
     global current_user_id
     current_user_id = 1
-    return "<h1>Shop</h1>" \
-           "<p><a href='/recommended'>Recommended for you</a></p>" \
-           "<p><a href='/categories'>Shop By Category</a></p>" \
-           "<p><a href='/wishlist'>View Wishlist</a></p>" \
-           "<p><a href='/cart'>View Your Cart</a></p>"
+    return "<h1>Shop</h1>" + '    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">'+
+
+           "<p><a href='/carberryt9/recommended'>Recommended for you</a></p>" \
+           "<p><a href='/carberryt9/categories'>Shop By Category</a></p>" \
+           "<p><a href='/carberryt9/wishlist'>View Wishlist</a></p>" \
+           "<p><a href='/carberryt9/cart'>View Your Cart</a></p>"
 
 
 # TODO: Make this a template
-@app.route('/admin/')
+@page.route('/admin/')
 def admin():
     global current_user_id
     current_user_id = 0
     return "<h1>Welcome to Rowan Bookstore - Admin Page</h1>" \
-           "<p><a href='/low_inventory'> Inventory that has fallen below the minimum stock level</a></p>" \
-           "<p><a href='/when_ship'> When will orders ship?</a></p>" \
-           "<p><a href='/never_bought'> Wish list but never bought</a></p>" \
-           "<p><a href='/not_active_customers'> Not active customers</a></p>" \
-           "<p><a href='/most_wished_category'> Most wished for item in each category</a></p>" \
+           "<p><a href='/carberryt9/low_inventory'> Inventory that has fallen below the minimum stock level</a></p>" \
+           "<p><a href='/carberryt9/when_ship'> When will orders ship?</a></p>" \
+           "<p><a href='/carberryt9/never_bought'> Wish list but never bought</a></p>" \
+           "<p><a href='/carberryt9/not_active_customers'> Not active customers</a></p>" \
+           "<p><a href='/carberryt9/most_wished_category'> Most wished for item in each category</a></p>" \
            "<br/>" \
-           "<p><a href='/items_sold_day_of_week'>EXTRA CREDIT: Number of items sold per day of week</a></p>" \
-           "<p><a href='/customers_spent_most'>EXTRA CREDIT: Customers who spent the most money</a></p>" \
+           "<p><a href='/carberryt9/items_sold_day_of_week'>EXTRA CREDIT: Number of items sold per day of week</a></p>" \
+           "<p><a href='/carberryt9/customers_spent_most'>EXTRA CREDIT: Customers who spent the most money</a></p>" \
            "<br/>" \
-           "<p><a href='/customers/'>View Our Customers</a></p>" \
-           "<p><a href='/all_customers/'>View All Customers (Due to a bug, viewing all customers takes a minute to load. The link below excludes adventureworks)</a></p>" \
-           "<p><a href='/most_customers/'>View Most Customers</a></p>" \
+           "<p><a href='/carberryt9/customers/'>View Our Customers</a></p>" \
+           "<p><a href='/carberryt9/all_customers/'>View All Customers (Due to a bug, viewing all customers takes a minute to load. The link below excludes adventureworks)</a></p>" \
+           "<p><a href='/carberryt9/most_customers/'>View Most Customers</a></p>" \
            "<br/>" \
-           "<p><a href='/book'>View All Books</a></p>" \
-           "<p><a href='/author'>View All Authors</a></p>" \
-           "<p><a href='/publisher'>View All Publishers</a></p>"
+           "<p><a href='/carberryt9/book'>View All Books</a></p>" \
+           "<p><a href='/carberryt9/author'>View All Authors</a></p>" \
+           "<p><a href='/carberryt9/publisher'>View All Publishers</a></p>"
 
 
-@app.route('/low_inventory/')
+@page.route('/low_inventory/')
 def low_inventory():
     inventory = session.execute(
         'SELECT title as name, concat("rowan_", book_id) as id FROM low_inventory ORDER BY title').fetchall()
-    return render_template("items.html", items=inventory)
+    return render_template("/carberryt9/items.html", items=inventory)
 
 
-@app.route('/when_ship/')
+@page.route('/when_ship/')
 def when_ship():
     day = session.execute(
         'SELECT day_of_week FROM when_will_order_ship').fetchone()
     return "Orders bought today will ship on " + day["day_of_week"]
 
 
-@app.route('/not_active_customers/', methods=['GET'])
+@page.route('/not_active_customers/', methods=['GET'])
 def not_active_customers():
     all_customers = session.execute("SELECT * FROM not_active_customers").fetchall()
-    return render_template("all_customers.html", customers=all_customers)
+    return render_template("/carberryt9/all_customers.html", customers=all_customers)
 
 
-@app.route('/items_sold_day_of_week/', methods=['GET'])
+@page.route('/items_sold_day_of_week/', methods=['GET'])
 def num_sold_day_week():
     num_sold_day_week = session.execute("SELECT * FROM items_sold_day_of_week").fetchall()
-    return render_template("num_sold_day_of_week.html", num_sold_day_week=num_sold_day_week)
+    return render_template("/carberryt9/num_sold_day_of_week.html", num_sold_day_week=num_sold_day_week)
 
 
-@app.route('/customers_spent_most/', methods=['GET'])
+@page.route('/customers_spent_most/', methods=['GET'])
 def customers_spent_most():
     customers_spent_most = session.execute("SELECT * FROM customers_spent_most").fetchall()
-    return render_template("customers_spent_most.html", customers_spent_most=customers_spent_most)
+    return render_template("/carberryt9/customers_spent_most.html", customers_spent_most=customers_spent_most)
 
 
 
-@app.route('/most_wished_category/', methods=['GET'])
+@page.route('/most_wished_category/', methods=['GET'])
 def most_wished_category():
     most_wished_category = session.execute("SELECT * FROM most_wished_for_item_every_category").fetchall()
-    return render_template("most_wished_category.html", most_wished_category=most_wished_category)
+    return render_template("/carberryt9/most_wished_category.html", most_wished_category=most_wished_category)
 
 
-@app.route('/book/')
+@page.route('/book/')
 def all_books():
     books = session.query(Book.Book).all()
-    return render_template('booklist.html',
+    return render_template('/carberryt9/booklist.html',
                            books=books,
                            title='All Books')
 
 
-@app.route('/book/<int:bookId>/')
+@page.route('/book/<int:bookId>/')
 def one_book(bookId):
     book = session.query(Book.Book).filter_by(book_id=bookId).one()
-    return render_template('book.html',
+    return render_template('/carberryt9/book.html',
                            book=book,
                            title=book.title,
                            current_user_id=current_user_id)
 
 
-@app.route('/book/modify/<int:book_id>/', methods=['GET', 'POST'])
+@page.route('/book/modify/<int:book_id>/', methods=['GET', 'POST'])
 def modify_book(book_id):
     book = session.query(Book.Book).filter_by(book_id=book_id).one()
     if request.method == 'POST':
@@ -182,16 +185,16 @@ def modify_book(book_id):
         session.add(book)
         session.commit()
         flash(book.title + "'s information updated")
-        return redirect(url_for('all_books'))
+        return redirect(url_for('.all_books'))
     else:
         authors = get_all_authors()
         genres = get_all_genres()
         publishers = get_all_publishers()
-        return render_template('editBook.html', book=book, allAuthors=authors, allGenres=genres,
+        return render_template('/carberryt9/editBook.html', book=book, allAuthors=authors, allGenres=genres,
                                allPublishers=publishers)
 
 
-@app.route('/book/delete/<int:book_id>/', methods=['GET', 'POST'])
+@page.route('/book/delete/<int:book_id>/', methods=['GET', 'POST'])
 def delete_book(book_id):
     book = session.query(Book.Book).filter_by(book_id=book_id).one()
     if request.method == 'POST':
@@ -204,12 +207,12 @@ def delete_book(book_id):
         session.delete(book)
         session.commit()
         flash(book.title + " deleted")
-        return redirect(url_for('all_books'))
+        return redirect(url_for('.all_books'))
     else:
-        return render_template('deleteBook.html', book=book)
+        return render_template('/carberryt9/deleteBook.html', book=book)
 
 
-@app.route('/book/new/', methods=['GET', 'POST'])
+@page.route('/book/new/', methods=['GET', 'POST'])
 def insert_book():
     if request.method == 'POST':
         title = request.form['title']
@@ -226,29 +229,29 @@ def insert_book():
         session.add(newBook)
         session.commit()
         flash("New book " + title + " created")
-        return redirect(url_for('all_books'))
+        return redirect(url_for('.all_books'))
     else:
         authors = get_all_authors()
         genres = get_all_genres()
         publishers = get_all_publishers()
-        return render_template('newBook.html', authors=authors, genres=genres, publishers=publishers)
+        return render_template('/carberryt9/newBook.html', authors=authors, genres=genres, publishers=publishers)
 
 
-@app.route('/publisher/')
+@page.route('/publisher/')
 def all_publishers():
     publishers = session.query(Publisher.Publisher).all()
-    return render_template('publisherlist.html',
+    return render_template('/carberryt9/publisherlist.html',
                            publishers=publishers)
 
 
-@app.route('/publisher/<int:publisher_id>/')
+@page.route('/publisher/<int:publisher_id>/')
 def one_publisher(publisher_id):
     publisher = session.query(Publisher.Publisher).filter_by(publisher_id=publisher_id).one()
-    return render_template('publisher.html',
+    return render_template('/carberryt9/publisher.html',
                            publisher=publisher)
 
 
-@app.route('/publisher/new/', methods=['GET', 'POST'])
+@page.route('/publisher/new/', methods=['GET', 'POST'])
 def new_publisher():
     if request.method == 'POST':
         name = request.form['publisher_name']
@@ -256,12 +259,12 @@ def new_publisher():
         session.add(publisher)
         session.commit()
         flash("New publisher " + name + " created")
-        return redirect(url_for('all_publishers'))
+        return redirect(url_for('.all_publishers'))
     else:
-        return render_template('newPublisher.html')
+        return render_template('/carberryt9/newPublisher.html')
 
 
-@app.route('/publisher/modify/<int:publisher_id>', methods=['GET', 'POST'])
+@page.route('/publisher/modify/<int:publisher_id>', methods=['GET', 'POST'])
 def modify_publisher(publisher_id):
     publisher = session.query(Publisher.Publisher).filter_by(publisher_id=publisher_id).one()
     if request.method == 'POST':
@@ -269,29 +272,29 @@ def modify_publisher(publisher_id):
         session.add(publisher)
         session.commit()
         flash("Publisher " + publisher.name + " edited")
-        return redirect(url_for('all_publishers'))
+        return redirect(url_for('.all_publishers'))
     else:
-        return render_template('editPublisher.html',
+        return render_template('/carberryt9/editPublisher.html',
                                publisher=publisher)
 
 
-@app.route('/publisher/delete/<int:publisher_id>/', methods=['GET', 'POST'])
+@page.route('/publisher/delete/<int:publisher_id>/', methods=['GET', 'POST'])
 def delete_publisher(publisher_id):
     publisher = session.query(Publisher.Publisher).filter_by(publisher_id=publisher_id).one()
     if request.method == 'POST':
         session.delete(publisher)
         session.commit()
         flash(publisher.name + " deleted")
-        return redirect(url_for('all_publishers'))
+        return redirect(url_for('.all_publishers'))
     else:
         if not publisher.book:
-            return render_template('deletePublisher.html', publisher=publisher)
+            return render_template('/carberryt9/deletePublisher.html', publisher=publisher)
         else:
-            return render_template('error.html',
+            return render_template('/carberryt9/error.html',
                                    cause='Can\'t delete a publisher with books')
 
 
-@app.route('/categories/', methods=['GET'])
+@page.route('/categories/', methods=['GET'])
 def get_categories():
     categories = session.execute("SELECT name FROM all_categories ORDER BY name").fetchall()
 
@@ -302,24 +305,24 @@ def get_categories():
         it['encoded_name'] = urllib.parse.quote_plus(it['name'])
         converted.append(it)
 
-    return render_template('categories.html', categories=converted)
+    return render_template('/carberryt9/categories.html', categories=converted)
 
 
-@app.route('/specials/', methods=['GET'])
+@page.route('/specials/', methods=['GET'])
 def get_specials():
     specials = session.execute(
         'SELECT * FROM specials ORDER BY name').fetchall()
-    return render_template("items.html", items=specials)
+    return render_template("/carberryt9/items.html", items=specials)
 
 
-@app.route('/recommended/', methods=['GET'])
+@page.route('/recommended/', methods=['GET'])
 def get_recommended():
     recommended = session.execute(
         'SELECT * FROM recommended_for_you ORDER BY name').fetchall()
-    return render_template("items.html", items=recommended)
+    return render_template("/carberryt9/items.html", items=recommended)
 
 
-@app.route('/item/', methods=['GET'])
+@page.route('/item/', methods=['GET'])
 def get_all_items():
     category = request.args.get('category')
     if category is not None:
@@ -327,19 +330,19 @@ def get_all_items():
             'SELECT * FROM all_items WHERE category LIKE "%' + category + '%" ORDER BY name').fetchall()
     else:
         all_items = session.execute("SELECT * FROM all_items").fetchall()
-    return render_template("items.html", items=all_items)
+    return render_template("/carberryt9/items.html", items=all_items)
 
 
-@app.route('/item/<string:item_id>/', methods=['GET'])
+@page.route('/item/<string:item_id>/', methods=['GET'])
 def get_specific_item(item_id):
     on_wishlist = session.query(WishList.WishList).filter_by(customer_id=current_user_id, item_id=item_id).scalar()
     my_rating = session.query(Rating.Rating).filter_by(customer_id=current_user_id, item_id=item_id).scalar()
     num_stars = my_rating.item_rating if my_rating is not None else None
     the_item = session.execute('SELECT * FROM all_items_with_rating WHERE id="' + item_id + '"').fetchone()
-    return render_template("item_details.html", item=the_item, on_wishlist=(on_wishlist != None), my_rating=num_stars)
+    return render_template("/carberryt9/item_details.html", item=the_item, on_wishlist=(on_wishlist != None), my_rating=num_stars)
 
 
-@app.route('/all_customers/', methods=['GET'])
+@page.route('/all_customers/', methods=['GET'])
 def get_all_customers():
     print("HELLO!")
     # There is a bug with our database where unioning all 4 stores together takes a really long time
@@ -352,11 +355,11 @@ def get_all_customers():
     print("NORTH!")
     all_customers4 = session.execute("SELECT * FROM adventure_customers").fetchall()
     print("ADVENTURE!")
-    return render_template("all_customers.html", customers=all_customers, customers2=all_customers2, customers3=all_customers3, customers4=all_customers4)
+    return render_template("/carberryt9/all_customers.html", customers=all_customers, customers2=all_customers2, customers3=all_customers3, customers4=all_customers4)
 
 
 
-@app.route('/most_customers/', methods=['GET'])
+@page.route('/most_customers/', methods=['GET'])
 def get_most_customers():
     print("HELLO!")
     # There is a bug with our database where unioning all 4 stores together takes a really long time
@@ -369,32 +372,32 @@ def get_most_customers():
     print("NORTH!")
     all_customers4 = [] #session.execute("SELECT * FROM adventure_customers").fetchall()
     print("ADVENTURE!")
-    return render_template("all_customers.html", customers=all_customers, customers2=all_customers2, customers3=all_customers3, customers4=all_customers4)
+    return render_template("/carberryt9/all_customers.html", customers=all_customers, customers2=all_customers2, customers3=all_customers3, customers4=all_customers4)
 
 
 
 
 
-@app.route('/never_bought/', methods=['GET'])
+@page.route('/never_bought/', methods=['GET'])
 def wish_list_never_bought():
     never_bought = session.execute("SELECT * FROM wish_list_never_purchased").fetchall()
-    return render_template("never_bought.html", never_bought=never_bought)
+    return render_template("/carberryt9/never_bought.html", never_bought=never_bought)
 
 
-@app.route('/author/', methods=['GET'])
+@page.route('/author/', methods=['GET'])
 def get_authors():
     authors = get_all_authors()
-    return render_template("authors.html", authors=authors)
+    return render_template("/carberryt9/authors.html", authors=authors)
 
 
-@app.route('/author/<int:author_id>/')
+@page.route('/author/<int:author_id>/')
 def one_author(author_id):
     author = session.query(Author.Author).filter_by(author_id=author_id).one()
-    return render_template('author.html',
+    return render_template('/carberryt9/author.html',
                            author=author)
 
 
-@app.route('/add_author/', methods=['GET', 'POST'])
+@page.route('/add_author/', methods=['GET', 'POST'])
 def add_author():
     if request.method == 'POST':
         first_name = request.form['author_first_name']
@@ -403,12 +406,12 @@ def add_author():
         session.add(author)
         session.commit()
         flash("New author " + first_name + " " + last_name + " created")
-        return redirect(url_for('get_authors'))
+        return redirect(url_for('.get_authors'))
     else:
-        return render_template('newAuthor.html')
+        return render_template('/carberryt9/newAuthor.html')
 
 
-@app.route('/author/modify/<int:author_id>/', methods=['GET', 'POST'])
+@page.route('/author/modify/<int:author_id>/', methods=['GET', 'POST'])
 def modify_author(author_id):
     author = session.query(Author.Author).filter_by(author_id=author_id).one()
     if request.method == 'POST':
@@ -417,37 +420,37 @@ def modify_author(author_id):
         session.add(author)
         session.commit()
         flash("Author " + author.first_name + " " + author.last_name + " edited")
-        return redirect(url_for('get_authors'))
+        return redirect(url_for('.get_authors'))
     else:
-        return render_template('editAuthor.html',
+        return render_template('/carberryt9/editAuthor.html',
                                author=author)
 
 
-@app.route('/author/delete/<int:author_id>/', methods=['GET', 'POST'])
+@page.route('/author/delete/<int:author_id>/', methods=['GET', 'POST'])
 def delete_author(author_id):
     author = session.query(Author.Author).filter_by(author_id=author_id).one()
     if request.method == 'POST':
         session.delete(author)
         session.commit()
         flash(author.first_name + " " + author.last_name + " deleted")
-        return redirect(url_for('get_authors'))
+        return redirect(url_for('.get_authors'))
     else:
         if not author.books:
-            return render_template('deleteAuthor.html', author=author)
+            return render_template('/carberryt9/deleteAuthor.html', author=author)
         else:
-            return render_template('error.html',
+            return render_template('/carberryt9/error.html',
                                    cause='Can\'t delete an author with books')
 
 
-@app.route('/cart/', methods=['GET'])
+@page.route('/cart/', methods=['GET'])
 def get_cart():
     cart = session.execute(
         'SELECT i.*, c.quantity FROM cart c JOIN all_items i on i.id = c.item_id WHERE c.customer_id = ' + str(
             current_user_id)).fetchall()
-    return render_template("cart.html", cart=cart)
+    return render_template("/carberryt9/cart.html", cart=cart)
 
 
-@app.route('/add_to_cart/<string:item_id>', methods=['POST'])
+@page.route('/add_to_cart/<string:item_id>', methods=['POST'])
 def add_to_cart(item_id):
     quantity = request.form['quantity']
 
@@ -459,58 +462,58 @@ def add_to_cart(item_id):
         cart_item = Cart.Cart(item_id=item_id, customer_id=current_user_id, quantity=quantity)
         session.add(cart_item)
     session.commit()
-    return redirect(url_for('get_cart'))
+    return redirect(url_for('.get_cart'))
 
 
-@app.route('/remove_from_cart/<string:item_id>', methods=['POST'])
+@page.route('/remove_from_cart/<string:item_id>', methods=['POST'])
 def remove_from_cart(item_id):
     try:
         cart_item = session.query(Cart.Cart).filter_by(customer_id=current_user_id, item_id=item_id).one()
         session.delete(cart_item)
         session.commit()
-        return redirect(url_for('get_cart'))
+        return redirect(url_for('.get_cart'))
     except:
         # Already deleted, don't do anything
         pass
-        return redirect(url_for('get_cart'))
+        return redirect(url_for('.get_cart'))
 
 
-@app.route('/wishlist/', methods=['GET'])
+@page.route('/wishlist/', methods=['GET'])
 def get_wishlist():
     current_user_id = 1
     all_items = session.execute(
         'SELECT i.* FROM wish_list w JOIN all_items i on i.id = w.item_id WHERE w.customer_id = ' + str(
             current_user_id)).fetchall()
-    return render_template("items.html", items=all_items, subtitle="Wishlist")
+    return render_template("/carberryt9/items.html", items=all_items, subtitle="Wishlist")
 
 
-@app.route('/add_to_wishlist/<string:item_id>', methods=['POST'])
+@page.route('/add_to_wishlist/<string:item_id>', methods=['POST'])
 def add_to_wishlist(item_id):
     try:
         wish_list_item = session.query(WishList.WishList).filter_by(customer_id=current_user_id, item_id=item_id).one()
         # Already on the wishlist, don't do anything
-        return redirect(url_for('get_wishlist'))
+        return redirect(url_for('.get_wishlist'))
     except:
         wish_list_item = WishList.WishList(item_id=item_id, customer_id=current_user_id)
         session.add(wish_list_item)
         session.commit()
-        return redirect(url_for('get_wishlist'))
+        return redirect(url_for('.get_wishlist'))
 
 
-@app.route('/remove_from_wishlist/<string:item_id>', methods=['POST'])
+@page.route('/remove_from_wishlist/<string:item_id>', methods=['POST'])
 def remove_from_wishlist(item_id):
     try:
         wish_list_item = session.query(WishList.WishList).filter_by(customer_id=current_user_id, item_id=item_id).one()
         session.delete(wish_list_item)
         session.commit()
-        return redirect(url_for('get_wishlist'))
+        return redirect(url_for('.get_wishlist'))
     except:
         # Already deleted, don't do anything
         pass
-        return redirect(url_for('get_wishlist'))
+        return redirect(url_for('.get_wishlist'))
 
 
-@app.route('/checkout/', methods=['POST'])
+@page.route('/checkout/', methods=['POST'])
 def checkout():
     day = session.execute(
         'SELECT day_of_week FROM when_will_order_ship').fetchone()
@@ -532,10 +535,10 @@ def checkout():
         session.commit()
 
     return "Order successful! Orders bought today will ship on " + day["day_of_week"] \
-           + "<br/> <a href = '/shop/'>Buy more stuff!</a>"
+           + "<br/> <a href = '/carberryt9/shop/'>Buy more stuff!</a>"
 
 
-@app.route('/rate_item/<string:item_id>', methods=['POST'])
+@page.route('/rate_item/<string:item_id>', methods=['POST'])
 def rate_item(item_id):
     stars = request.form['stars']
 
@@ -546,24 +549,24 @@ def rate_item(item_id):
         rating = Rating.Rating(item_id=item_id, customer_id=current_user_id, item_rating=str(stars))
     session.add(rating)
     session.commit()
-    return redirect(url_for('get_specific_item', item_id=item_id))
+    return redirect(url_for('.get_specific_item', item_id=item_id))
 
 
-@app.route('/customers/')
+@page.route('/customers/')
 def our_customers():
     customers = session.query(Customer.Customer).all()
-    return render_template('our_customers.html',
+    return render_template('/carberryt9/our_customers.html',
                            customers=customers)
 
 
-@app.route('/customer/<int:customer_id>/')
+@page.route('/customer/<int:customer_id>/')
 def one_customer(customer_id):
     customer = session.query(Customer.Customer).filter_by(customer_id=customer_id).one()
-    return render_template('customer.html',
+    return render_template('/carberryt9/customer.html',
                            customer=customer)
 
 
-@app.route('/customer/new/', methods=['GET', 'POST'])
+@page.route('/customer/new/', methods=['GET', 'POST'])
 def new_customer():
     if request.method == 'POST':
         first_name = request.form['first_name']
@@ -574,12 +577,12 @@ def new_customer():
         session.add(customer)
         session.commit()
         flash("New customer " + first_name + " " + last_name + " created")
-        return redirect(url_for('our_customers'))
+        return redirect(url_for('.our_customers'))
     else:
-        return render_template('newCustomer.html')
+        return render_template('/carberryt9/newCustomer.html')
 
 
-@app.route('/customer/modify/<int:customer_id>', methods=['GET', 'POST'])
+@page.route('/customer/modify/<int:customer_id>', methods=['GET', 'POST'])
 def modify_customer(customer_id):
     customer = session.query(Customer.Customer).filter_by(customer_id=customer_id).one()
     if request.method == 'POST':
@@ -590,22 +593,22 @@ def modify_customer(customer_id):
         session.add(customer)
         session.commit()
         flash("Customer " + customer.first_name + " " + customer.last_name + " edited")
-        return redirect(url_for('our_customers'))
+        return redirect(url_for('.our_customers'))
     else:
-        return render_template('editCustomer.html',
+        return render_template('/carberryt9/editCustomer.html',
                                customer=customer)
 
 
-@app.route('/customer/delete/<int:customer_id>/', methods=['GET', 'POST'])
+@page.route('/customer/delete/<int:customer_id>/', methods=['GET', 'POST'])
 def delete_customer(customer_id):
     customer = session.query(Customer.Customer).filter_by(customer_id=customer_id).one()
     if request.method == 'POST':
         session.delete(customer)
         session.commit()
         flash(customer.first_name + " " + customer.last_name + "deleted")
-        return redirect(url_for('our_customers'))
+        return redirect(url_for('.our_customers'))
     else:
-        return render_template('deleteCustomer.html', customer=customer)
+        return render_template('/carberryt9/deleteCustomer.html', customer=customer)
 
 
 ##helper functions
@@ -623,7 +626,3 @@ def get_all_publishers():
     publisher = session.query(Publisher.Publisher).all()
     return publisher
 
-
-if __name__ == '__main__':
-    app.secret_key = os.urandom(24)
-    app.run()

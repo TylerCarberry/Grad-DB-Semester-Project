@@ -1,14 +1,14 @@
-{% extends "base.html" %}
+{% extends "carberryt9/base.html" %}
 {% block h1 %}Authors{% endblock %}
 
 {% block content %}
     <h1>{{author.first_name}} {{author.last_name}}</h1>
-    <a href = "/author/modify/{{author.author_id}}">Modify</a> &nbsp;&nbsp;
-    <a href = "/author/delete/{{author.author_id}}">Delete</a>
+    <a href = "/carberryt9/author/modify/{{author.author_id}}">Modify</a> &nbsp;&nbsp;
+    <a href = "/carberryt9/author/delete/{{author.author_id}}">Delete</a>
     <h2>Books published</h2>
     <ul>
     {% for book in author.books %}
-        <li><a href="/book/{{book.id}}">{{book.title}}</a></li>
+        <li><a href="/carberryt9/book/{{book.id}}">{{book.title}}</a></li>
     {% endfor %}
     </ul>
 {% endblock %}
