@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block content %}
+<h2> Restock </h2>
+	{% for product in products %}
+		Product: <b>{{product.Products}}</b>
+		<br/>
+		Restock Amount: {{product.Restock_Amount}}
+		<br/>
+		Date: {{product.Date}}
+		<br/><br/>
+	{% endfor %}
+{% endblock %}

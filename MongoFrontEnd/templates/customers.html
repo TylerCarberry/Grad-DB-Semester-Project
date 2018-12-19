@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block content %}
+<h2> Customers </h2>
+	
+	{% for customer in customers %}
+		{{customer.Name}} <u>{{customer.Email}}</u> 
+		<br/>
+		Address: {{customer.Address}}
+		<br/>
+		{% if customer.Cart %}
+			Cart:
+			<ul>{% for item in customer.Cart %}
+				<li>Name: {{item.Item}}
+				Amount: {{item.Amount}}
+				Cost: {{item.Cost}}
+				</li>
+			{% endfor %}</ul>
+		{% endif %}
+
+		{% if customer.Transaction_History %}
+			Transactions:
+			<ul>{% for item in customer.Transaction_History %}
+				<li>Name: {{item.Item}}
+                Amount: {{item.Amount}}
+                Cost: {{item.Cost}}
+                Date: {{item.Date}}
+				</li>
+			{% endfor %}</ul>
+		{% endif %}
+
+		{% if customer.Last_Active %}
+			Last Active: {{customer.Last_Active}}
+			<br/>
+		{% endif %}
+
+		{% if customer.source %}
+			Source: {{customer.source}}
+			<br/>
+		{% endif %}
+		<br/>
+	{% endfor %}
+	
+{% endblock %}

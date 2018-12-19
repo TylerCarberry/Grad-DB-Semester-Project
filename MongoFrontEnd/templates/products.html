@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block content %}
+<h2> Products </h2>
+	
+	{% for product in products %}
+		{% if product.Name %}
+			<b>{{product.Name}}</b>
+		{% endif %}
+		{% if product.Title %}
+			<b>{{product.Title}}</b>
+		{% endif %}
+		
+		<br/>
+		{% if product.Description %}
+			Description: {{product.Description}}
+			<br/>
+		{% endif %}
+		
+		{% if product.Actors %}
+		Actors:
+			<ul>
+			{% for actor in product.Actors %}
+				<li>{{actor.FirstName}} {{actor.LastName}}</li>
+				<br/>        
+			{% endfor %}
+			</ul>
+		{% endif %}
+
+		
+		{% if product.Category %}
+			Category: {{product.Category}}
+			<br/>        
+		{% endif %}
+
+		{% if product.Publisher %}
+			Publisher: {{product.Publisher}}
+			<br/>        
+		{% endif %}
+
+		{% if product.Num_In_Stock %}
+			Amount in stock: {{product.Num_In_Stock}}
+			<br/>        
+		{% endif %}
+
+		{% if product.Pages %}
+			Pages: {{product.Pages}}
+			<br/>        
+		{% endif %}
+
+		{% if Price %}
+			Price: {{product.Price}}
+			<br/>
+		{% endif %}
+
+		{% if product.source %}
+			Source: {{product.source}}
+		{% endif %}
+		<br/><br/><br/>
+	{% endfor %}
+	
+{% endblock %}
