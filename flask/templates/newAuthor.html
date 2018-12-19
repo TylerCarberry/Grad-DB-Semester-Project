@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
-	<form action = "{{ url_for('new_author') }}" method ='POST'>
+	<form action = "{{ url_for('add_author') }}" method ='POST'>
 		<label for='author_first_name'>Author First Name: </label>
 		<input type='text' size = '50' name='author_first_name' value=''/>
 		<label for='author_last_name'>Publisher Name: </label>

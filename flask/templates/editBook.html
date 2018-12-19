@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
-	<form action = "{{url_for('modify_book', bookId=book.book_id) }}" method ='POST'>
+	<form action = "{{url_for('modify_book', book_id=book.book_id) }}" method ='POST'>
 		<label for='title'>Book Title: </label>
 		<input type='text' size = '50' name='title' value='{{book.title}}'/>
 		<br/>
@@ -28,7 +28,7 @@
 		<br/>
 		
 		<label for='publisher_id'>Publisher: </label>
-		<select name="publisher_id_{{book.publisher.publisher_id}}">
+		<select name="publisher_id">
 				{% for currentPublisher in allPublishers %}
 					{% if currentPublisher.publisher_id == book.publisher.publisher_id %}
 						<option value="{{currentPublisher.publisher_id}}" selected> {{currentPublisher.name}}</option>

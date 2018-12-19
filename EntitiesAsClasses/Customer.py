@@ -19,8 +19,8 @@ class Customer(BASE):
     first_name = Column(String(50), nullable=False)
     last_name = Column(String(50), nullable=False)
     address = Column(String(100), nullable=True)
-	email = Column(String(100), nullable=False)
-	
+    email = Column(String(100), nullable=False)
+
     __table_args__ = (
         PrimaryKeyConstraint('customer_id', name='PRIMARY'), )
 
@@ -28,4 +28,4 @@ class Customer(BASE):
         self.first_name = first_name
         self.last_name = last_name
         self.address = address
-		self.email = email
+        self.email = email
